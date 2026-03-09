@@ -48,6 +48,10 @@ const complaintSchema = new mongoose.Schema({
         },
         text: String,
         timestamp: { type: Date, default: Date.now }
+    }],
+    upvotes: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
     }]
 }, { timestamps: true });
 

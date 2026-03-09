@@ -17,8 +17,8 @@ const NavBar = () => {
             <div className="nav-links">
                 {user ? (
                     <>
-                        <span style={{ marginRight: '1rem', fontWeight: 600 }}>{user.name} ({user.role})</span>
-                        <button onClick={handleLogout}>Logout</button>
+                        <span style={{ marginRight: '1rem', fontWeight: 600 }}>Welcome, {user.name}</span>
+                        <button onClick={handleLogout} className="btn-sm">Logout</button>
                     </>
                 ) : (
                     <>

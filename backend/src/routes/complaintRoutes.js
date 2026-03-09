@@ -8,15 +8,17 @@ const {
     getAllComplaints, 
     assignComplaint, 
     getAssignedComplaints, 
-    updateStatus 
+    updateStatus,
+    toggleUpvote
 } = require('../controllers/complaintController');
 
 // User Routes
 router.post('/', protect, authorize('User'), upload.single('image'), createComplaint);
 router.get('/me', protect, authorize('User'), getMyComplaints);
+router.post('/:id/upvote', protect, authorize('User'), toggleUpvote);
 
-// Admin Routes
-router.get('/', protect, authorize('Admin'), getAllComplaints);
+// Public Feed / Admin View
+router.get('/', protect, authorize('Admin', 'User'), getAllComplaints);
 router.put('/:id/assign', protect, authorize('Admin'), assignComplaint);
 
 // Staff Routes

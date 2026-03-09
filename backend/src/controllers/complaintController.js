@@ -8,9 +8,13 @@ exports.createComplaint = async (req, res) => {
         const { description, lat, lng } = req.body;
         
         // Handle image upload from Cloudinary
+        // Handle image upload path (Cloudinary returns URL, Local returns filename)
         let userImageURL = '';
         if (req.file) {
-            userImageURL = req.file.path; // Cloudinary returns URL in path
+            // If local storage, prepend the base URL
+            userImageURL = req.file.path.includes('http') 
+                ? req.file.path 
+                : `http://localhost:5000/${req.file.path.replace(/\\/g, '/')}`;
         } else {
             return res.status(400).json({ message: 'Image proof is required' });
         }
@@ -131,6 +135,35 @@ exports.updateStatus = async (req, res) => {
         await complaint.save();
         
         res.json(complaint);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Toggle Upvote for a complaint
+// @route   POST /api/complaints/:id/upvote
+// @access  Private (User)
+exports.toggleUpvote = async (req, res) => {
+    try {
+        const complaint = await Complaint.findById(req.params.id);
+
+        if (!complaint) {
+            return res.status(404).json({ message: 'Complaint not found' });
+        }
+
+        // Check if user already upvoted
+        const upvoteIndex = complaint.upvotes.indexOf(req.user.id);
+
+        if (upvoteIndex > -1) {
+            // Already upvoted, remove it
+            complaint.upvotes.splice(upvoteIndex, 1);
+        } else {
+            // Not upvoted, add it
+            complaint.upvotes.push(req.user.id);
+        }
+
+        await complaint.save();
+        res.status(200).json(complaint.upvotes);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
