@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const Complaint = require('../models/Complaint');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
@@ -80,6 +81,34 @@ exports.getMe = async (req, res) => {
     try {
         const user = await User.findById(req.user.id).select('-password');
         res.json(user);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Get user statistics (Real work - Profile stats)
+// @route   GET /api/auth/stats
+// @access  Private
+exports.getUserStats = async (req, res) => {
+    try {
+        const complaints = await Complaint.find({ userId: req.user.id });
+        
+        const totalReports = complaints.length;
+        const impactScore = complaints.reduce((sum, c) => sum + (c.upvotes?.length || 0), 0);
+        const resolvedCount = complaints.filter(c => c.status === 'Resolved').length;
+
+        // Determine badge based on stats
+        let badges = [];
+        if (totalReports >= 1) badges.push({ type: 'Reporter', icon: '🛡️', title: 'First Responder' });
+        if (impactScore >= 5) badges.push({ type: 'Helper', icon: '🤝', title: 'Community Pillar' });
+        if (resolvedCount >= 1) badges.push({ type: 'Fixer', icon: '✅', title: 'Problem Solver' });
+
+        res.json({
+            totalReports,
+            impactScore,
+            resolvedCount,
+            badges
+        });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

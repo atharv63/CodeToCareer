@@ -12,9 +12,15 @@ app.use(express.json());
 // Connect Databaser
 connectDB();
 
+// Static folders
+const path = require('path');
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 // Routes
 app.use('/api/auth', require('./src/routes/authRoutes'));
 app.use('/api/complaints', require('./src/routes/complaintRoutes'));
+app.use('/api/fixes', require('./src/routes/fixReportRoutes'));
+app.use('/api/feed', require('./src/routes/feedRoutes'));
 
 app.get('/', (req, res) => {
     res.send('API is running...');

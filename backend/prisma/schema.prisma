@@ -1,0 +1,95 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("MONGODB_URI")
+}
+
+enum Role {
+  User
+  Admin
+  MunicipalityStaff @map("Municipality Staff")
+}
+
+enum Status {
+  Pending
+  Verified
+  Assigned
+  InProgress @map("In Progress")
+  Resolved
+  Spam
+}
+
+model User {
+  id             String      @id @default(auto()) @map("_id") @db.ObjectId
+  name           String
+  email          String      @unique
+  password       String
+  role           Role        @default(User)
+  municipalityId String?     @db.ObjectId
+  
+  complaints     Complaint[]
+  remarks        Remark[]
+  upvotedOn      String[]    @db.ObjectId // Array of Complaint IDs
+  
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+}
+
+model Complaint {
+  id             String      @id @default(auto()) @map("_id") @db.ObjectId
+  userId         String      @db.ObjectId
+  user           User        @relation(fields: [userId], references: [id])
+  
+  description    String
+  userImageURL   String
+  location       Location
+  status         Status      @default(Pending)
+  
+  municipalityId String?     @db.ObjectId
+  
+  beforeImageURL String?
+  proofImages    String[]    // After photos
+  remarks        Remark[]
+  upvotes        String[]    @db.ObjectId // Array of User IDs
+  
+  relatedFixPost FixReport?  // One-to-one relation if resolved
+  
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+}
+
+type Location {
+  lat Float
+  lng Float
+}
+
+type Remark {
+  by        String   @db.ObjectId
+  text      String
+  timestamp DateTime @default(now())
+}
+
+model FixReport {
+  id                 String    @id @default(auto()) @map("_id") @db.ObjectId
+  municipalityId     String    @db.ObjectId
+  
+  relatedComplaintId String    @unique @db.ObjectId
+  complaint          Complaint @relation(fields: [relatedComplaintId], references: [id])
+  
+  description        String
+  fixImageURL        String
+  location           Location
+  timeOfFix          DateTime  @default(now())
+  
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+}
+
+model Municipality {
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  name   String @unique
+  city   String // Just a string for the city name now
+}

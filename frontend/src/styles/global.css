@@ -32,7 +32,7 @@ body {
 /* Nav Bar */
 .navbar {
   background-color: var(--surface);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   padding: 1rem 2rem;
   display: flex;
   justify-content: space-between;
@@ -60,7 +60,7 @@ body {
   background: var(--surface);
   border-radius: 8px;
   padding: 1.5rem;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
   margin-bottom: 1rem;
 }
 
@@ -72,27 +72,48 @@ body {
   font-weight: 600;
   text-transform: uppercase;
 }
-.status-pending { background: #fee2e2; color: #991b1b; }
-.status-assigned { background: #fef3c7; color: #92400e; }
-.status-inprogress { background: #dbeafe; color: #1e40af; }
-.status-resolved { background: #d1fae5; color: #065f46; }
+
+.status-pending {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.status-assigned {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status-inprogress {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.status-resolved {
+  background: #d1fae5;
+  color: #065f46;
+}
 
 /* Forms */
 .form-group {
   margin-bottom: 1rem;
 }
+
 .form-group label {
   display: block;
   font-weight: 500;
   margin-bottom: 0.5rem;
 }
-.form-group input, .form-group select, .form-group textarea {
+
+.form-group input,
+.form-group select,
+.form-group textarea {
   width: 100%;
   padding: 0.75rem;
   border: 1px solid #d1d5db;
   border-radius: 4px;
   font-family: inherit;
 }
+
 .btn {
   background: var(--primary);
   color: white;
@@ -103,6 +124,7 @@ body {
   font-weight: 500;
   width: 100%;
 }
+
 .btn:hover {
   background: var(--primary-hover);
 }
@@ -110,4 +132,168 @@ body {
 .auth-container {
   max-width: 400px;
   margin: 4rem auto;
+}
+
+/* --- Advanced Social Feed Features --- */
+
+.feed-container {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+/* Map/Feed Toggle Switch */
+.view-toggle {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  background: #f1f5f9;
+  padding: 0.4rem;
+  border-radius: 999px;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.toggle-btn {
+  padding: 0.6rem 1.5rem;
+  border-radius: 999px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: transparent;
+  color: #64748b;
+}
+
+.toggle-btn.active {
+  background: white;
+  color: var(--primary);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Social Card Enhancements */
+.social-card {
+  border: 1px solid #e2e8f0;
+  margin-bottom: 2rem;
+  transition: transform 0.2s;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.official-avatar {
+  background: var(--secondary) !important;
+}
+
+.meta {
+  flex: 1;
+}
+
+.meta .name {
+  display: block;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.meta .time {
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.upvote-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.upvote-btn.active {
+  background: #eff6ff;
+  border-color: #3b82f6;
+  color: #2563eb;
+}
+
+.upvote-btn:hover {
+  background: #f1f5f9;
+}
+
+/* Official Fix Card Style */
+.official-card {
+  background: #f0f9ff;
+  border: 2px solid #bae6fd;
+}
+
+.verified-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: #0ea5e9;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  margin-top: 4px;
+  text-transform: uppercase;
+}
+
+.fix-link {
+  display: block;
+  text-align: center;
+  padding: 0.75rem;
+  background: #ecfdf5;
+  color: #059669;
+  text-decoration: none;
+  font-weight: 700;
+  border-radius: 6px;
+  margin-top: 1rem;
+  border: 1px dashed #10b981;
+}
+
+/* Map Popup Styling */
+.custom-popup .leaflet-popup-content-wrapper {
+  padding: 0;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.popup-img {
+  width: 200px;
+  height: 120px;
+  object-fit: cover;
+}
+
+#map-view {
+  height: 600px;
+  width: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 4px solid white;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
 }
