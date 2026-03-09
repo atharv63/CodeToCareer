@@ -1,0 +1,309 @@
+/* src/styles/Dashboard.css */
+
+/* --- Center Feed Column --- */
+.feed-column {
+    border-right: 1px solid var(--border-color);
+    border-left: 1px solid var(--border-color);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.feed-header {
+    position: sticky;
+    top: 0;
+    background-color: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 16px;
+    border-bottom: 1px solid var(--border-color);
+    z-index: 10;
+}
+
+.feed-header h2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.mobile-toggle {
+    display: none; /* Hidden on Desktop */
+}
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+    text-align: center;
+}
+
+/* --- Right Sidebar (Desktop Map) --- */
+.right-sidebar {
+    padding: 12px 24px;
+    height: 100vh;
+    position: sticky;
+    top: 0;
+}
+
+.search-bar-container {
+    margin-bottom: 20px;
+}
+
+.search-input {
+    width: 100%;
+    background-color: var(--bg-elevated);
+    border: 1px solid transparent;
+    color: var(--text-main);
+    padding: 14px 20px;
+    border-radius: 9999px;
+    font-size: 0.95rem;
+    outline: none;
+    transition: background-color 0.2s, border 0.2s;
+}
+
+.search-input:focus {
+    background-color: var(--bg-color);
+    border: 1px solid var(--primary-accent);
+}
+
+.desktop-map-card {
+    background-color: var(--bg-elevated);
+    border-radius: 16px;
+    padding: 16px;
+    height: 400px;
+    display: flex;
+    flex-direction: column;
+}
+
+.desktop-map-card h3 {
+    font-size: 1.1rem;
+    font-weight: 800;
+    margin-bottom: 12px;
+}
+
+.map-wrapper {
+    flex: 1;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+/* --- Compose Modal (X Style) --- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(91, 112, 131, 0.4);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 5%;
+    z-index: 9999;
+}
+
+.compose-modal {
+    background-color: var(--bg-color);
+    width: 100%;
+    max-width: 600px;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: var(--text-main);
+    cursor: pointer;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 20px;
+}
+
+.close-btn:hover {
+    background-color: var(--hover-overlay);
+}
+
+.modal-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.compose-body {
+    display: flex;
+    padding: 16px;
+}
+
+.compose-avatar {
+    width: 40px;
+    height: 40px;
+    background-color: var(--primary-accent);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    margin-right: 12px;
+    flex-shrink: 0;
+}
+
+.compose-input-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.compose-input-area textarea {
+    background: transparent;
+    border: none;
+    color: var(--text-main);
+    font-size: 1.2rem;
+    resize: none;
+    outline: none;
+    margin-bottom: 16px;
+}
+
+.image-preview-container {
+    position: relative;
+    margin-bottom: 16px;
+}
+
+.image-preview {
+    width: 100%;
+    max-height: 280px;
+    object-fit: cover;
+    border-radius: 16px;
+}
+
+.remove-image-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    backdrop-filter: blur(4px);
+}
+
+.mini-map-picker {
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.map-picker-header {
+    padding: 8px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.locate-me-btn {
+    background-color: var(--bg-elevated);
+    color: var(--primary-accent);
+    border: 1px solid var(--border-color);
+    padding: 4px 12px;
+    border-radius: 9999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.mini-map-wrapper {
+    height: 150px;
+    width: 100%;
+}
+
+.compose-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-top: 1px solid var(--border-color);
+}
+
+.action-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.action-icon:hover {
+    background-color: rgba(29, 155, 240, 0.1);
+}
+
+/* Mobile Adjustments */
+@media (max-width: 1024px) {
+    .right-sidebar { display: none; }
+    .feed-column { border-right: none; }
+}
+
+@media (max-width: 500px) {
+    .feed-column { border-left: none; }
+    
+    .feed-header h2 { display: none; }
+    
+    .mobile-toggle {
+        display: flex;
+        width: 100%;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .mobile-toggle button {
+        flex: 1;
+        background: none;
+        border: none;
+        color: var(--text-muted);
+        padding: 12px;
+        font-weight: 700;
+        font-size: 1rem;
+    }
+    
+    .mobile-toggle button.active {
+        color: var(--text-main);
+        border-bottom: 4px solid var(--primary-accent);
+    }
+
+    .mobile-map-container {
+        height: calc(100vh - 120px); /* Adjust for header and bottom nav */
+    }
+
+    .modal-overlay {
+        padding-top: 0;
+    }
+
+    .compose-modal {
+        height: 100vh;
+        border-radius: 0;
+    }
+}

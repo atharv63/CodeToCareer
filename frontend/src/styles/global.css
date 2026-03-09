@@ -1,299 +1,75 @@
+/* src/styles/global.css */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
 :root {
-  --primary: #2563eb;
-  --primary-hover: #1d4ed8;
-  --secondary: #10b981;
-  --background: #f3f4f6;
-  --surface: #ffffff;
-  --text-main: #1f2937;
-  --text-muted: #6b7280;
-  --danger: #ef4444;
-  --warning: #f59e0b;
+  /* X Dark Mode Color Palette */
+  --bg-color: #000000;
+  --bg-elevated: #16181c;
+  --border-color: #2f3336;
+  --text-main: #e7e9ea;
+  --text-muted: #71767b;
+  --primary-accent: #1d9bf0; /* Premium Blue */
+  --primary-hover: #1a8cd8;
+  --success-color: #00ba7c;
+  --danger-color: #f4212e;
+  --hover-overlay: rgba(255, 255, 255, 0.03);
 }
 
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 body {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  background-color: var(--background);
+  background-color: var(--bg-color);
   color: var(--text-main);
-  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
 }
 
-.container {
-  max-width: 1200px;
+/* Base App Layout (3-Column Grid for Desktop) */
+.app-layout {
+  display: grid;
+  grid-template-columns: 275px minmax(600px, 1fr) 350px;
+  max-width: 1250px;
   margin: 0 auto;
-  padding: 2rem;
+  min-height: 100vh;
 }
 
-/* Nav Bar */
-.navbar {
-  background-color: var(--surface);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  padding: 1rem 2rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.nav-brand {
-  font-weight: 700;
-  font-size: 1.25rem;
-  color: var(--primary);
-  text-decoration: none;
-}
-
-.nav-links button {
-  background: var(--primary);
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-/* Cards */
-.card {
-  background: var(--surface);
-  border-radius: 8px;
-  padding: 1.5rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  margin-bottom: 1rem;
-}
-
-.status-badge {
-  display: inline-block;
-  padding: 0.25rem 0.5rem;
-  border-radius: 999px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-}
-
-.status-pending {
-  background: #fee2e2;
-  color: #991b1b;
-}
-
-.status-assigned {
-  background: #fef3c7;
-  color: #92400e;
-}
-
-.status-inprogress {
-  background: #dbeafe;
-  color: #1e40af;
-}
-
-.status-resolved {
-  background: #d1fae5;
-  color: #065f46;
-}
-
-/* Forms */
-.form-group {
-  margin-bottom: 1rem;
-}
-
-.form-group label {
-  display: block;
-  font-weight: 500;
-  margin-bottom: 0.5rem;
-}
-
-.form-group input,
-.form-group select,
-.form-group textarea {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 4px;
-  font-family: inherit;
-}
-
-.btn {
-  background: var(--primary);
-  color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: 500;
-  width: 100%;
-}
-
-.btn:hover {
-  background: var(--primary-hover);
-}
-
-.auth-container {
-  max-width: 400px;
-  margin: 4rem auto;
-}
-
-/* --- Advanced Social Feed Features --- */
-
-.feed-container {
-  max-width: 600px;
-  margin: 2rem auto;
-  padding: 0 1rem;
-}
-
-/* Map/Feed Toggle Switch */
-.view-toggle {
-  display: flex;
-  justify-content: center;
-  gap: 0.5rem;
-  margin-bottom: 2rem;
-  background: #f1f5f9;
-  padding: 0.4rem;
-  border-radius: 999px;
-  width: fit-content;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.toggle-btn {
-  padding: 0.6rem 1.5rem;
-  border-radius: 999px;
-  border: none;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
+/* Hide Scrollbars but keep functionality */
+::-webkit-scrollbar {
+  width: 0px;
   background: transparent;
-  color: #64748b;
 }
 
-.toggle-btn.active {
-  background: white;
-  color: var(--primary);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-}
-
-/* Social Card Enhancements */
-.social-card {
-  border: 1px solid #e2e8f0;
-  margin-bottom: 2rem;
-  transition: transform 0.2s;
-}
-
-.card-header {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem;
-}
-
-.avatar {
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  background: var(--primary);
+/* Universal Button Styling */
+.btn-primary {
+  background-color: var(--primary-accent);
   color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 800;
-  border: 2px solid white;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.official-avatar {
-  background: var(--secondary) !important;
-}
-
-.meta {
-  flex: 1;
-}
-
-.meta .name {
-  display: block;
+  border: none;
+  border-radius: 9999px; /* Pill shape */
+  padding: 12px 24px;
   font-weight: 700;
-  font-size: 0.95rem;
-}
-
-.meta .time {
-  font-size: 0.75rem;
-  color: #94a3b8;
-}
-
-.upvote-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
+  font-size: 15px;
   cursor: pointer;
-  font-weight: 600;
-  transition: all 0.2s;
+  transition: background-color 0.2s;
 }
 
-.upvote-btn.active {
-  background: #eff6ff;
-  border-color: #3b82f6;
-  color: #2563eb;
+.btn-primary:hover {
+  background-color: var(--primary-hover);
 }
 
-.upvote-btn:hover {
-  background: #f1f5f9;
+/* Mobile Responsiveness */
+@media (max-width: 1024px) {
+  .app-layout {
+    grid-template-columns: 80px 1fr; /* Shrink sidebar, hide right column */
+  }
 }
 
-/* Official Fix Card Style */
-.official-card {
-  background: #f0f9ff;
-  border: 2px solid #bae6fd;
-}
-
-.verified-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  background: #0ea5e9;
-  color: white;
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-size: 0.7rem;
-  font-weight: 700;
-  margin-top: 4px;
-  text-transform: uppercase;
-}
-
-.fix-link {
-  display: block;
-  text-align: center;
-  padding: 0.75rem;
-  background: #ecfdf5;
-  color: #059669;
-  text-decoration: none;
-  font-weight: 700;
-  border-radius: 6px;
-  margin-top: 1rem;
-  border: 1px dashed #10b981;
-}
-
-/* Map Popup Styling */
-.custom-popup .leaflet-popup-content-wrapper {
-  padding: 0;
-  overflow: hidden;
-  border-radius: 12px;
-}
-
-.popup-img {
-  width: 200px;
-  height: 120px;
-  object-fit: cover;
-}
-
-#map-view {
-  height: 600px;
-  width: 100%;
-  border-radius: 16px;
-  overflow: hidden;
-  border: 4px solid white;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+@media (max-width: 500px) {
+  .app-layout {
+    display: block; /* Stack everything for mobile */
+    padding-bottom: 60px; /* Space for bottom nav */
+  }
 }

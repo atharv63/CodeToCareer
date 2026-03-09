@@ -1,6 +1,8 @@
 import { useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import { Siren } from 'lucide-react';
+import '../styles/Auth.css';
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -12,26 +14,24 @@ const Login = () => {
         e.preventDefault();
         try {
             await login(email, password);
-            navigate('/'); // You would redirect based on role here ideally
+            navigate('/'); 
         } catch (error) {
             alert('Login failed');
         }
     };
 
     return (
-        <div className="auth-container card">
-            <h2>Login</h2>
-            <form onSubmit={handleSubmit} style={{ marginTop: '1rem' }}>
-                <div className="form-group">
-                    <label>Email</label>
-                    <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-                </div>
-                <div className="form-group">
-                    <label>Password</label>
-                    <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-                </div>
-                <button type="submit" className="btn">Sign In</button>
-            </form>
+        <div className="auth-page">
+            <div className="auth-box">
+                <Siren size={48} color="var(--primary-accent)" style={{ margin: '0 auto 20px', display: 'block' }} />
+                <h2>Sign in to CivicCenter</h2>
+                <form onSubmit={handleSubmit}>
+                    <input type="email" placeholder="Email address" className="auth-input" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                    <input type="password" placeholder="Password" className="auth-input" value={password} onChange={(e) => setPassword(e.target.value)} required />
+                    <button type="submit" className="btn-primary auth-btn">Log in</button>
+                </form>
+                <p className="auth-link-text">Don't have an account? <Link to="/register">Sign up</Link></p>
+            </div>
         </div>
     );
 };

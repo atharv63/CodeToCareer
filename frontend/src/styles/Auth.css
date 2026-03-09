@@ -1,0 +1,94 @@
+/* src/styles/Auth.css */
+
+.auth-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--bg-color);
+    
+    /* THE FIX: Push the container right so it doesn't hide under the sidebar */
+    padding-left: 275px; 
+}
+
+/* Tablet sizing (Sidebar shrinks to 80px) */
+@media (max-width: 1024px) {
+    .auth-page {
+        padding-left: 80px; 
+    }
+}
+
+/* Mobile sizing (Sidebar disappears, bottom nav appears) */
+@media (max-width: 500px) {
+    .auth-page {
+        padding-left: 0; 
+        padding-bottom: 60px; /* Keep it above the bottom mobile nav */
+        padding-top: 20px;
+    }
+    
+    .auth-box {
+        border: none; /* Looks cleaner on mobile without the box border */
+        box-shadow: none;
+        padding: 20px;
+    }
+}
+
+/* --- Keep the rest of your Auth.css exactly the same below this line --- */
+
+.auth-box {
+    background-color: var(--bg-elevated);
+    width: 100%;
+    max-width: 450px;
+    padding: 40px;
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    text-align: center;
+}
+
+/* ...rest of the code... */
+
+.auth-box h2 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin-bottom: 30px;
+    color: var(--text-main);
+}
+
+.auth-input, .auth-select {
+    width: 100%;
+    background-color: var(--bg-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    padding: 16px;
+    margin-bottom: 16px;
+    border-radius: 8px;
+    font-size: 1rem;
+    outline: none;
+    transition: border 0.2s;
+}
+
+.auth-input:focus, .auth-select:focus {
+    border-color: var(--primary-accent);
+}
+
+.auth-btn {
+    width: 100%;
+    padding: 16px;
+    font-size: 1.1rem;
+    margin-top: 10px;
+}
+
+.auth-link-text {
+    margin-top: 24px;
+    color: var(--text-muted);
+}
+
+.auth-link-text a {
+    color: var(--primary-accent);
+    text-decoration: none;
+}
+
+.auth-link-text a:hover {
+    text-decoration: underline;
+}

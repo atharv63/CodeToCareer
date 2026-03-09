@@ -1,47 +1,55 @@
 import React from 'react';
-import { FaCheckCircle, FaCalendarAlt, FaBuilding, FaMapMarkerAlt } from 'react-icons/fa';
+import { BadgeCheck, MapPin, Building2 } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
 
 const FixReportCard = ({ report }) => {
+    // Format the date Twitter-style
+    const timeAgo = report.timeOfFix || report.createdAt
+        ? formatDistanceToNow(new Date(report.timeOfFix || report.createdAt), { addSuffix: false }).replace('about ', '')
+        : 'Just now';
+
     return (
-        <div className="card social-card official-card shadow-lg">
-            {/* Official Header */}
-            <div className="card-header">
-                <div className="avatar official-avatar">
-                   <FaCheckCircle color="white" />
+        <article className="tweet-card official-fix-card" style={{ borderLeft: '3px solid #00ba7c' }}>
+            <div className="tweet-left">
+                <div className="tweet-avatar" style={{ backgroundColor: '#00ba7c' }}>
+                    <BadgeCheck size={24} color="white" />
                 </div>
-                <div className="meta">
-                    <span className="name">{report.departmentId?.name || 'Department of Public Works'} Update</span>
-                    <div className="verified-badge">
-                        <FaCheckCircle size={10} /> Official Verified
+            </div>
+            
+            <div className="tweet-right">
+                <div className="tweet-header">
+                    <div className="tweet-user-info">
+                        <span className="tweet-name">{report.departmentId?.name || 'Dept. of Public Works'}</span>
+                        <BadgeCheck size={16} color="#00ba7c" style={{ marginLeft: '4px', marginRight: '4px' }} />
+                        <span className="tweet-handle">@official_update</span>
+                        <span className="tweet-dot">·</span>
+                        <span className="tweet-time">{timeAgo}</span>
+                    </div>
+                    <div className="tweet-status status-resolved">FIXED</div>
+                </div>
+
+                <p className="tweet-text" style={{ color: '#e7e9ea', borderLeft: '2px solid #00ba7c', paddingLeft: '12px', margin: '8px 0 12px' }}>
+                    {report.description || "The reported infrastructure issue has been successfully resolved at this location."}
+                </p>
+
+                {report.fixImageURL && (
+                    <div className="tweet-media">
+                        <img src={report.fixImageURL} alt="Resolution Proof" loading="lazy" />
+                    </div>
+                )}
+
+                <div className="tweet-actions" style={{ marginTop: '12px', borderTop: '1px solid var(--border-color)', paddingTop: '12px', display: 'flex', gap: '20px' }}>
+                    <div className="action-group" style={{ cursor: 'default' }}>
+                        <div className="action-icon-bg"><Building2 size={16} /></div>
+                        <span className="action-count">NDMC - Infrastructure</span>
+                    </div>
+                    <div className="action-group location-group">
+                        <div className="action-icon-bg"><MapPin size={16} /></div>
+                        <span className="action-count">View Map</span>
                     </div>
                 </div>
-                <div className="post-time">
-                    <FaCalendarAlt style={{ marginRight: '4px' }} />
-                    {new Date(report.timeOfFix || report.createdAt).toLocaleDateString()}
-                </div>
             </div>
-
-            {/* Fix Description */}
-            <p className="description" style={{ borderLeft: '3px solid #0ea5e9', paddingLeft: '1rem', margin: '1rem' }}>
-                {report.description || "The reported infrastructure issue has been successfully resolved at this location."}
-            </p>
-
-            {/* The Evidence Image */}
-            <div className="card-media">
-                <img src={report.fixImageURL} alt="Resolution Proof" style={{ height: '350px', objectFit: 'cover' }} />
-            </div>
-
-            {/* Footer */}
-            <div className="card-footer" style={{ borderTop: '1px solid #bae6fd', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div className="location-info">
-                   <FaMapMarkerAlt color="#0ea5e9" />
-                   <span>View on City Map</span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#64748b', fontSize: '0.8rem' }}>
-                    <FaBuilding /> NDMC - Infrastructure Division
-                </div>
-            </div>
-        </div>
+        </article>
     );
 };
 

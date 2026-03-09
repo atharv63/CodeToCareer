@@ -1,7 +1,9 @@
 import React, { useContext } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, AuthContext } from './context/AuthContext';
-import NavBar from './components/NavBar';
+
+// We removed the global NavBar import from here because the individual 
+// pages (UserDashboard, Profile) now render it inside their own CSS Grids!
 import Login from './pages/Login';
 import Register from './pages/Register';
 import UserDashboard from './pages/UserDashboard';
@@ -13,7 +15,7 @@ import './styles/global.css';
 const HomeRedirect = () => {
   const { user, loading } = useContext(AuthContext);
   
-  if (loading) return <div className="container">Loading...</div>;
+  if (loading) return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: 'var(--text-muted)' }}>Loading...</div>;
   if (!user) return <Navigate to="/login" replace />;
   
   if (user.role === 'Admin') return <Navigate to="/admin" replace />;
@@ -23,7 +25,7 @@ const HomeRedirect = () => {
 
 const PublicRoute = ({ children }) => {
   const { user, loading } = useContext(AuthContext);
-  if (loading) return <div className="container">Loading...</div>;
+  if (loading) return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: 'var(--text-muted)' }}>Loading...</div>;
   if (user) return <Navigate to="/" replace />;
   return children;
 };
@@ -32,18 +34,22 @@ function App() {
   return (
     <AuthProvider>
       <Router>
-        <NavBar />
-        <div className="container" style={{ marginTop: '2rem' }}>
-          <Routes>
-            <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
-            <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
-            <Route path="/user" element={<UserDashboard />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/staff" element={<StaffDashboard />} />
-            <Route path="/" element={<HomeRedirect />} />
-          </Routes>
-        </div>
+        {/* We removed the global NavBar and the wrapping container div. 
+            Now, the pages take up the full screen using our CSS Grid! */}
+        <Routes>
+          <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+          <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
+          
+          <Route path="/user" element={<UserDashboard />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/staff" element={<StaffDashboard />} />
+          
+          {/* Added the missing map route so mobile bottom-nav doesn't throw a warning */}
+          <Route path="/map" element={<UserDashboard />} /> 
+          
+          <Route path="/" element={<HomeRedirect />} />
+        </Routes>
       </Router>
     </AuthProvider>
   );

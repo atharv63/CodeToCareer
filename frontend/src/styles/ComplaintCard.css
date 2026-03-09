@@ -1,0 +1,164 @@
+/* src/styles/ComplaintCard.css */
+
+.tweet-card {
+    display: flex;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
+    background-color: transparent;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.tweet-card:hover {
+    background-color: var(--hover-overlay);
+}
+
+.tweet-left {
+    margin-right: 12px;
+    flex-shrink: 0;
+}
+
+.tweet-avatar {
+    width: 40px;
+    height: 40px;
+    background-color: var(--primary-accent);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.2rem;
+}
+
+.tweet-right {
+    flex: 1;
+    min-width: 0; /* Prevents flex flex-children from blowing out the width */
+}
+
+.tweet-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.tweet-user-info {
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.tweet-name {
+    font-weight: 700;
+    color: var(--text-main);
+    margin-right: 4px;
+}
+
+.tweet-name:hover {
+    text-decoration: underline;
+}
+
+.tweet-handle, .tweet-time {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+}
+
+.tweet-dot {
+    color: var(--text-muted);
+    margin: 0 4px;
+}
+
+.tweet-status {
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 9999px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Status Pill Colors */
+.status-resolved { background-color: rgba(0, 186, 124, 0.15); color: #00ba7c; }
+.status-progress { background-color: rgba(29, 155, 240, 0.15); color: #1d9bf0; }
+.status-assigned { background-color: rgba(255, 173, 31, 0.15); color: #ffad1f; }
+.status-pending { background-color: rgba(244, 33, 46, 0.15); color: #f4212e; }
+
+.tweet-text {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: var(--text-main);
+    margin: 0 0 12px 0;
+    word-wrap: break-word;
+}
+
+.tweet-media {
+    margin-top: 12px;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+}
+
+.tweet-media img {
+    width: 100%;
+    max-height: 500px;
+    object-fit: cover;
+    display: block;
+}
+
+.tweet-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 12px;
+    max-width: 425px;
+}
+
+.action-group {
+    display: flex;
+    align-items: center;
+    color: var(--text-muted);
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.action-icon-bg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    transition: background-color 0.2s ease;
+    margin-right: 4px;
+}
+
+.action-count {
+    font-size: 0.85rem;
+    padding-right: 12px;
+}
+
+/* Hover effects for actions just like X */
+.upvote-group:hover, .upvote-group.upvoted {
+    color: #f91880;
+}
+
+.upvote-group:hover .action-icon-bg {
+    background-color: rgba(249, 24, 128, 0.1);
+}
+
+.location-group:hover {
+    color: #1d9bf0;
+}
+
+.location-group:hover .action-icon-bg {
+    background-color: rgba(29, 155, 240, 0.1);
+}
+
+.fix-group:hover .action-icon-bg {
+    background-color: rgba(0, 186, 124, 0.1);
+}
