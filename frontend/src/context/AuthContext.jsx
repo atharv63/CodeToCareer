@@ -43,7 +43,9 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-<AuthContext.Provider value={{ user, setUser, login, logout, loading }}>            {children}
+        // 👇 FIX: Added 'register' right here! 👇
+        <AuthContext.Provider value={{ user, setUser, login, register, logout, loading }}>            
+            {children}
         </AuthContext.Provider>
     );
 };

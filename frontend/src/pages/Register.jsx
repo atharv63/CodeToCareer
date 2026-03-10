@@ -15,7 +15,10 @@ const Register = () => {
             await register(formData.name, formData.email, formData.password, formData.role);
             navigate('/');
         } catch (error) {
-            alert('Registration failed');
+            // 👇 This will now show the EXACT error from the backend!
+            const errorMsg = error.response?.data?.message || 'Registration failed. Is your backend running?';
+            alert(`Error: ${errorMsg}`);
+            console.error("Full error details:", error);
         }
     };
 
