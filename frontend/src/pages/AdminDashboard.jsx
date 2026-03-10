@@ -30,9 +30,9 @@ const AdminDashboard = () => {
     fetchMunicipalities();
   }, []);
 
-  // Filter only pending complaints
-  const pendingComplaints = complaints.filter(
-    (complaint) => complaint.status === "Pending",
+  // Filter Pending, Assigned, In Progress, and Resolved complaints
+  const activeComplaints = complaints.filter(
+    (complaint) => complaint.status === "Pending" || complaint.status === "Assigned" || complaint.status === "In Progress" || complaint.status === "Resolved",
   );
 
   return (
@@ -44,12 +44,12 @@ const AdminDashboard = () => {
         refresh={fetchMunicipalities}
       />
 
-      <h2>Pending Complaints ({pendingComplaints.length})</h2>
+      <h2>Active Complaints ({activeComplaints.length})</h2>
 
-      {pendingComplaints.length === 0 ? (
-        <p>No pending complaints</p>
+      {activeComplaints.length === 0 ? (
+        <p>No active complaints</p>
       ) : (
-        pendingComplaints.map((complaint) => (
+        activeComplaints.map((complaint) => (
           <AdminComplaintCard
             key={complaint._id}
             complaint={complaint}

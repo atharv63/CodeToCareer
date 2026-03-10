@@ -1,8 +1,25 @@
 import React, { useState } from "react";
 import API from "../services/api";
+import { MapPin, X } from "lucide-react";
+import { MapContainer, TileLayer, Marker } from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+
+// Fix for default marker icons
+import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
+import markerIcon from 'leaflet/dist/images/marker-icon.png';
+import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+    iconRetinaUrl: markerIcon2x,
+    iconUrl: markerIcon,
+    shadowUrl: markerShadow
+});
 
 const AdminComplaintCard = ({ complaint, municipalities, refresh }) => {
   const [municipalityId, setMunicipalityId] = useState("");
+  const [showMap, setShowMap] = useState(false);
   const complaintId = complaint.id || complaint._id;
   const cityName = complaint.city || "City not available";
 
@@ -67,8 +84,16 @@ const AdminComplaintCard = ({ complaint, municipalities, refresh }) => {
         </div>
         <span
           style={{
-            background: "#fef3c7",
-            color: "#92400e",
+            background: 
+                complaint.status === "Resolved" ? "#00ba7c" : // Green for Resolved
+                complaint.status === "In Progress" ? "#1d9bf0" : // Blue for In Progress
+                complaint.status === "Assigned" ? "#dcfce7" : // Light Green for Assigned
+                "#fef3c7", // Yellow for Pending
+            color: 
+                complaint.status === "Resolved" ? "#ffffff" : 
+                complaint.status === "In Progress" ? "#ffffff" : 
+                complaint.status === "Assigned" ? "#166534" : 
+                "#92400e",
             padding: "5px 12px",
             borderRadius: "20px",
             fontSize: "14px",
@@ -95,6 +120,41 @@ const AdminComplaintCard = ({ complaint, municipalities, refresh }) => {
             marginBottom: "15px",
           }}
         />
+      )}
+
+      <div style={{ marginBottom: '15px' }}>
+          <button 
+            onClick={() => setShowMap(!showMap)}
+            style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '8px 12px',
+                background: '#f3f4f6',
+                border: '1px solid #d1d5db',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                color: '#374151'
+            }}
+          >
+              <MapPin size={18} color="#f4212e" />
+              {showMap ? "Hide Location Map" : "View Location on Map"}
+          </button>
+      </div>
+
+      {showMap && complaint.location && (
+          <div style={{ height: '200px', width: '100%', borderRadius: '8px', overflow: 'hidden', marginBottom: '15px', border: '1px solid #e5e7eb' }}>
+              <MapContainer 
+                center={[complaint.location.lat, complaint.location.lng]} 
+                zoom={15} 
+                style={{ height: '100%', width: '100%' }}
+                scrollWheelZoom={false}
+              >
+                  <TileLayer url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png" />
+                  <Marker position={[complaint.location.lat, complaint.location.lng]} />
+              </MapContainer>
+          </div>
       )}
 
       <div
