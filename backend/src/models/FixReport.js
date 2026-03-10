@@ -3,8 +3,7 @@ const mongoose = require('mongoose');
 const fixReportSchema = new mongoose.Schema({
     departmentId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Department',
-        required: true
+        ref: 'Department'
     },
     municipalityId: {
         type: mongoose.Schema.Types.ObjectId,

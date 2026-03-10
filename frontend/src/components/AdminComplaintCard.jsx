@@ -83,18 +83,6 @@ const AdminComplaintCard = ({ complaint, municipalities, refresh }) => {
         {complaint.description}
       </p>
 
-      <div
-        style={{
-          background: "#f3f4f6",
-          padding: "10px 12px",
-          borderRadius: "8px",
-          marginBottom: "15px",
-          fontSize: "14px",
-        }}
-      >
-        <strong>City:</strong> {cityName}
-      </div>
-
       {complaint.userImageURL && (
         <img
           src={complaint.userImageURL}

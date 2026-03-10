@@ -39,10 +39,6 @@ const FixReportCard = ({ report }) => {
                 )}
 
                 <div className="tweet-actions" style={{ marginTop: '12px', borderTop: '1px solid var(--border-color)', paddingTop: '12px', display: 'flex', gap: '20px' }}>
-                    <div className="action-group" style={{ cursor: 'default' }}>
-                        <div className="action-icon-bg"><Building2 size={16} /></div>
-                        <span className="action-count">NDMC - Infrastructure</span>
-                    </div>
                     <div className="action-group location-group">
                         <div className="action-icon-bg"><MapPin size={16} /></div>
                         <span className="action-count">View Map</span>

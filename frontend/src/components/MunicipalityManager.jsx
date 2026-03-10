@@ -49,23 +49,6 @@ const MunicipalityManager = ({ municipalities, refresh }) => {
         <button onClick={createMunicipality}>Add</button>
       </div>
 
-      {municipalities.map((m) => (
-        <div
-          key={m.id}
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            borderBottom: "1px solid #e5e7eb",
-            padding: "8px 0",
-          }}
-        >
-          <span>
-            {m.name} ({m.city})
-          </span>
-
-          <button onClick={() => deleteMunicipality(m.id)}>Delete</button>
-        </div>
-      ))}
     </div>
   );
 };
