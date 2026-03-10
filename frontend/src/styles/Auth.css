@@ -1,38 +1,74 @@
 /* src/styles/Auth.css */
+/* src/styles/Auth.css */
 
 .auth-page {
-    min-height: 100vh;
     display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: var(--bg-color);
-    
-    /* THE FIX: Push the container right so it doesn't hide under the sidebar */
-    padding-left: 275px; 
+    justify-content: center; /* Centers horizontally */
+    align-items: center;     /* Centers vertically */
+    min-height: 100vh;      /* Full viewport height */
+    width: 100%;
+    background-color: #000; /* Dark background as per your screenshot */
+    padding: 20px;
 }
 
-/* Tablet sizing (Sidebar shrinks to 80px) */
-@media (max-width: 1024px) {
-    .auth-page {
-        padding-left: 80px; 
-    }
+.auth-box {
+    background-color: #16181c; /* Slightly lighter dark for the card */
+    width: 100%;
+    max-width: 400px;
+    padding: 40px;
+    border-radius: 16px;
+    border: 1px solid #2f3336;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
-/* Mobile sizing (Sidebar disappears, bottom nav appears) */
-@media (max-width: 500px) {
-    .auth-page {
-        padding-left: 0; 
-        padding-bottom: 60px; /* Keep it above the bottom mobile nav */
-        padding-top: 20px;
-    }
-    
-    .auth-box {
-        border: none; /* Looks cleaner on mobile without the box border */
-        box-shadow: none;
-        padding: 20px;
-    }
+.auth-box h2 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin-bottom: 30px;
+    color: #fff;
 }
 
+.auth-input, .auth-select {
+    width: 100%;
+    padding: 16px;
+    margin-bottom: 16px;
+    background-color: transparent;
+    border: 1px solid #333;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.auth-input:focus, .auth-select:focus {
+    border-color: var(--primary-accent);
+}
+
+.auth-btn {
+    width: 100%;
+    padding: 14px;
+    margin-top: 10px;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.auth-link-text {
+    margin-top: 24px;
+    color: #71767b;
+    font-size: 0.95rem;
+}
+
+.auth-link-text a {
+    color: var(--primary-accent);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.auth-link-text a:hover {
+    text-decoration: underline;
+}
 /* --- Keep the rest of your Auth.css exactly the same below this line --- */
 
 .auth-box {
@@ -91,4 +127,26 @@
 
 .auth-link-text a:hover {
     text-decoration: underline;
+}
+
+/* This class should go on the outer-most div of your Login and Signup pages */
+.auth-page-container {
+    display: flex;
+    justify-content: center; /* Horizontal center */
+    align-items: center;     /* Vertical center */
+    min-height: 100vh;      /* Full screen height */
+    width: 100%;
+    background-color: var(--bg-color); /* Match your dark theme */
+    padding: 20px;
+}
+
+/* Ensure the card has a fixed or max width so it doesn't stretch */
+.auth-card {
+    width: 100%;
+    max-width: 450px;
+    background-color: var(--bg-elevated);
+    border-radius: 16px;
+    padding: 32px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
 }

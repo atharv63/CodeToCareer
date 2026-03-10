@@ -1,35 +1,62 @@
 import React, { useState, useContext } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
-import { Heart, MessageCircle, MapPin, ExternalLink, ArrowUp } from 'lucide-react';
+import { MessageCircle, MapPin, ExternalLink, ArrowUp, Send } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
-import '../styles/ComplaintCard.css'; // We will create this next!
+import '../styles/ComplaintCard.css'; 
 
 const ComplaintCard = ({ complaint, onUpdate }) => {
     const { user } = useContext(AuthContext);
     const [isUpvoting, setIsUpvoting] = useState(false);
+    
+    // Comment States
+    const [showComments, setShowComments] = useState(false);
+    const [commentText, setCommentText] = useState('');
+    const [localComments, setLocalComments] = useState(complaint.comments || []);
+    const [isCommenting, setIsCommenting] = useState(false);
 
-    // Safeguard for missing data
     if (!complaint) return null;
 
     const hasUpvoted = complaint.upvotes?.includes(user?.id);
     const upvoteCount = complaint.upvotes?.length || 0;
 
-    const handleUpvote = async (e) => {
-        e.stopPropagation(); // Prevents clicking the card from triggering other events
+    const handleFollowUp = async (e) => {
+        e.stopPropagation(); 
         if (isUpvoting) return;
         setIsUpvoting(true);
         try {
             const token = localStorage.getItem('token');
-            // Assuming your backend toggles the upvote (adds if missing, removes if present)
             const res = await axios.post(`http://localhost:5000/api/complaints/${complaint._id}/upvote`, {}, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (onUpdate) onUpdate(complaint._id, { upvotes: res.data });
         } catch (error) {
-            console.error('Error upvoting:', error);
+            console.error('Error boosting issue:', error);
         } finally {
             setIsUpvoting(false);
+        }
+    };
+
+    // The New Comment Function!
+    const handleCommentSubmit = async (e) => {
+        e.preventDefault();
+        if (!commentText.trim() || isCommenting) return;
+        
+        setIsCommenting(true);
+        try {
+            const token = localStorage.getItem('token');
+            const res = await axios.post(`http://localhost:5000/api/complaints/${complaint._id}/comments`, {
+                text: commentText,
+                userName: user?.name // Pass user name so backend can save it directly
+            }, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            setLocalComments(res.data); // Update UI instantly
+            setCommentText(''); // Clear input
+        } catch (error) {
+            console.error('Error posting comment:', error);
+        } finally {
+            setIsCommenting(false);
         }
     };
 
@@ -42,78 +69,87 @@ const ComplaintCard = ({ complaint, onUpdate }) => {
         }
     };
 
-    // Format the date to look like Twitter (e.g., "2h", "5d")
     const timeAgo = complaint.createdAt 
         ? formatDistanceToNow(new Date(complaint.createdAt), { addSuffix: false }).replace('about ', '') 
         : 'Just now';
 
     return (
-        <article className="tweet-card">
-            {/* Left Side: Avatar */}
-            <div className="tweet-left">
-                <div className="tweet-avatar">
-                    {complaint.userId?.name?.charAt(0) || 'U'}
+        <article className="premium-card">
+            <div className="card-header">
+                <div className="card-user">
+                    <div className="card-avatar">
+                        {complaint.userId?.name?.charAt(0) || 'U'}
+                    </div>
+                    <div className="card-meta">
+                        <span className="card-name">{complaint.userId?.name || 'Citizen'}</span>
+                        <span className="card-time">{timeAgo} ago</span>
+                    </div>
+                </div>
+                <div className={`status-badge ${getStatusStyle(complaint.status)}`}>
+                    {complaint.status || 'Pending'}
                 </div>
             </div>
 
-            {/* Right Side: Content */}
-            <div className="tweet-right">
-                {/* Header */}
-                <div className="tweet-header">
-                    <div className="tweet-user-info">
-                        <span className="tweet-name">{complaint.userId?.name || 'Anonymous'}</span>
-                        <span className="tweet-handle">@{complaint.userId?.name?.toLowerCase().replace(/\s/g, '') || 'user'}</span>
-                        <span className="tweet-dot">·</span>
-                        <span className="tweet-time">{timeAgo}</span>
-                    </div>
-                    <div className={`tweet-status ${getStatusStyle(complaint.status)}`}>
-                        {complaint.status || 'Pending'}
-                    </div>
+            <div className="card-body">
+                <p className="card-text">{complaint.description}</p>
+            </div>
+
+            {complaint.userImageURL && (
+                <div className="card-media">
+                    <img src={complaint.userImageURL} alt="Issue reported" loading="lazy" />
                 </div>
+            )}
 
-                {/* Body Text */}
-                <p className="tweet-text">{complaint.description}</p>
+            <div className="card-footer">
+                <button 
+                    className={`action-btn boost-btn ${hasUpvoted ? 'boosted' : ''}`} 
+                    onClick={handleFollowUp}
+                    disabled={isUpvoting}
+                >
+                    <ArrowUp size={20} strokeWidth={hasUpvoted ? 3 : 2} />
+                    <span>{hasUpvoted ? 'Following Up' : 'Follow Up'}</span>
+                    {upvoteCount > 0 && <span className="action-count">• {upvoteCount}</span>}
+                </button>
 
-                {/* Media Image */}
-                {complaint.userImageURL && (
-                    <div className="tweet-media">
-                        <img src={complaint.userImageURL} alt="Issue reported" loading="lazy" />
-                    </div>
-                )}
+                {/* Toggles the comment section visibility */}
+                <button className="action-btn comment-btn" onClick={() => setShowComments(!showComments)}>
+                    <MessageCircle size={20} />
+                    <span>Discuss {localComments.length > 0 ? `(${localComments.length})` : ''}</span>
+                </button>
 
-                {/* Footer Actions */}
-                <div className="tweet-actions">
-                    {/* Upvote/Heart Button */}
-                    <button 
-                        className={`action-group upvote-group ${hasUpvoted ? 'upvoted' : ''}`} 
-                        onClick={handleUpvote}
-                        disabled={isUpvoting}
-                    >
-                        <div className="action-icon-bg">
-                            <Heart size={18} fill={hasUpvoted ? "#f91880" : "none"} color={hasUpvoted ? "#f91880" : "currentColor"} />
-                        </div>
-                        <span className="action-count">{upvoteCount > 0 ? upvoteCount : ''}</span>
-                    </button>
+                <div className="action-btn location-btn">
+                    <MapPin size={20} />
+                    <span>View Map</span>
+                </div>
+            </div>
 
-                    {/* Location Tag */}
-                    <div className="action-group location-group">
-                        <div className="action-icon-bg">
-                            <MapPin size={18} />
-                        </div>
-                        <span className="action-count">Pinned</span>
-                    </div>
-
-                    {/* Official Fix Link (If Resolved) */}
-                    {complaint.status === 'Resolved' && complaint.relatedFixPost && (
-                        <a href={`#fix-${complaint.relatedFixPost}`} className="action-group fix-group">
-                            <div className="action-icon-bg">
-                                <ExternalLink size={18} color="#00ba7c" />
+            {/* THE NEW COMMENTS DROPDOWN SECTION */}
+            {showComments && (
+                <div className="comments-section">
+                    <form onSubmit={handleCommentSubmit} className="comment-form">
+                        <div className="mini-avatar">{user?.name?.charAt(0) || 'U'}</div>
+                        <input 
+                            type="text" 
+                            className="comment-input" 
+                            placeholder="Add to the discussion..." 
+                            value={commentText}
+                            onChange={(e) => setCommentText(e.target.value)}
+                        />
+                        <button type="submit" className="comment-submit" disabled={!commentText.trim() || isCommenting}>
+                            <Send size={18} />
+                        </button>
+                    </form>
+                    
+                    <div className="comments-list">
+                        {localComments.map((comment, index) => (
+                            <div key={index} className="comment-bubble">
+                                <span className="comment-author">{comment.name}</span>
+                                <span className="comment-text">{comment.text}</span>
                             </div>
-                            <span className="action-count" style={{color: '#00ba7c'}}>View Fix</span>
-                        </a>
-                    )}
+                        ))}
+                    </div>
                 </div>
-            </div>
+            )}
         </article>
     );
 };

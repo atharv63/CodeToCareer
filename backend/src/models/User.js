@@ -19,6 +19,22 @@ const userSchema = new mongoose.Schema({
         enum: ['User', 'Admin', 'Municipality Staff'],
         default: 'User'
     },
+    
+    // 👇 NEW PROFESSIONAL PROFILE FIELDS 👇
+    profileImage: {
+        type: String,
+        default: '' // Will store the Cloudinary or local URL
+    },
+    bannerImage: {
+        type: String,
+        default: '' // Will store the Cloudinary or local URL
+    },
+    bio: {
+        type: String,
+        default: 'Citizen of Goa | Reporting for a better city'
+    },
+    // 👆 NEW FIELDS END 👆
+
     // Optional fields for Staff
     cityId: {
         type: mongoose.Schema.Types.ObjectId,

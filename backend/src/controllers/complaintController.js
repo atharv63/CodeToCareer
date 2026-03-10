@@ -7,11 +7,9 @@ exports.createComplaint = async (req, res) => {
     try {
         const { description, lat, lng } = req.body;
         
-        // Handle image upload from Cloudinary
-        // Handle image upload path (Cloudinary returns URL, Local returns filename)
         let userImageURL = '';
         if (req.file) {
-            // If local storage, prepend the base URL
+            // Handle image upload path (Cloudinary returns URL, Local returns filename)
             userImageURL = req.file.path.includes('http') 
                 ? req.file.path 
                 : `http://localhost:5000/${req.file.path.replace(/\\/g, '/')}`;
@@ -49,7 +47,6 @@ exports.getMyComplaints = async (req, res) => {
 // @access  Private (Admin)
 exports.getAllComplaints = async (req, res) => {
     try {
-        // Can add query filters based on city, status here later
         const filter = {};
         if (req.query.status) filter.status = req.query.status;
         if (req.query.cityId) filter.cityId = req.query.cityId;
@@ -92,15 +89,13 @@ exports.assignComplaint = async (req, res) => {
 // @access  Private (Municipality Staff)
 exports.getAssignedComplaints = async (req, res) => {
     try {
-        // Find complaints matching the staff's department
         const filter = { departmentId: req.user.departmentId };
         
         if (req.query.status) {
-            filter.status = req.query.status; // Get only Pending/Resolved assigned to this dept
+            filter.status = req.query.status;
         }
         
-        const complaints = await Complaint.find(filter)
-            .sort({ createdAt: -1 });
+        const complaints = await Complaint.find(filter).sort({ createdAt: -1 });
             
         res.json(complaints);
     } catch (error) {
@@ -118,7 +113,6 @@ exports.updateStatus = async (req, res) => {
         
         if (!complaint) return res.status(404).json({ message: 'Complaint not found' });
         
-        // Handle optional after image upload
         if (req.file) {
              complaint.proofImages.push(req.file.path);
         }
@@ -151,19 +145,44 @@ exports.toggleUpvote = async (req, res) => {
             return res.status(404).json({ message: 'Complaint not found' });
         }
 
-        // Check if user already upvoted
         const upvoteIndex = complaint.upvotes.indexOf(req.user.id);
 
         if (upvoteIndex > -1) {
-            // Already upvoted, remove it
             complaint.upvotes.splice(upvoteIndex, 1);
         } else {
-            // Not upvoted, add it
             complaint.upvotes.push(req.user.id);
         }
 
         await complaint.save();
         res.status(200).json(complaint.upvotes);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Add a comment to a complaint
+// @route   POST /api/complaints/:id/comments
+// @access  Private (All authenticated users)
+exports.addComment = async (req, res) => {
+    try {
+        const { text, userName } = req.body;
+        const complaint = await Complaint.findById(req.params.id);
+
+        if (!complaint) {
+            return res.status(404).json({ message: 'Complaint not found' });
+        }
+
+        const newComment = {
+            user: req.user.id,
+            name: userName || 'Citizen', // Grab the name sent from frontend
+            text: text
+        };
+
+        complaint.comments.push(newComment);
+        await complaint.save();
+        
+        // Return the updated comments array
+        res.status(201).json(complaint.comments);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

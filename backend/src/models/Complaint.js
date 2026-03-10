@@ -49,6 +49,25 @@ const complaintSchema = new mongoose.Schema({
         text: String,
         timestamp: { type: Date, default: Date.now }
     }],
+    // ... inside your complaintSchema ...
+    remarks: [{
+        by: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User'
+        },
+        text: String,
+        timestamp: { type: Date, default: Date.now }
+    }],
+    
+    // 👇 ADD THIS NEW COMMENTS BLOCK 👇
+    comments: [{
+        user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+        name: String,
+        text: String,
+        createdAt: { type: Date, default: Date.now }
+    }],
+    // 👆 END NEW COMMENTS BLOCK 👆
+
     upvotes: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'

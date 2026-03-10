@@ -3,6 +3,7 @@ const Complaint = require('../models/Complaint');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
+// Helper to generate JWT
 const generateToken = (id, role, cityId, departmentId) => {
     return jwt.sign({ id, role, cityId, departmentId }, process.env.JWT_SECRET, {
         expiresIn: '30d',
@@ -31,7 +32,7 @@ exports.register = async (req, res) => {
             name,
             email,
             password: hashedPassword,
-            role: role || 'User', // Default role is user
+            role: role || 'User',
             cityId,
             departmentId
         });
@@ -64,6 +65,9 @@ exports.login = async (req, res) => {
                 name: user.name,
                 email: user.email,
                 role: user.role,
+                profileImage: user.profileImage,
+                bannerImage: user.bannerImage,
+                bio: user.bio,
                 token: generateToken(user._id, user.role, user.cityId, user.departmentId),
             });
         } else {
@@ -74,7 +78,7 @@ exports.login = async (req, res) => {
     }
 };
 
-// @desc    Get user data
+// @desc    Get current user data
 // @route   GET /api/auth/me
 // @access  Private
 exports.getMe = async (req, res) => {
@@ -86,7 +90,7 @@ exports.getMe = async (req, res) => {
     }
 };
 
-// @desc    Get user statistics (Real work - Profile stats)
+// @desc    Get user statistics & achievements
 // @route   GET /api/auth/stats
 // @access  Private
 exports.getUserStats = async (req, res) => {
@@ -97,7 +101,7 @@ exports.getUserStats = async (req, res) => {
         const impactScore = complaints.reduce((sum, c) => sum + (c.upvotes?.length || 0), 0);
         const resolvedCount = complaints.filter(c => c.status === 'Resolved').length;
 
-        // Determine badge based on stats
+        // Gamification logic for profile badges
         let badges = [];
         if (totalReports >= 1) badges.push({ type: 'Reporter', icon: '🛡️', title: 'First Responder' });
         if (impactScore >= 5) badges.push({ type: 'Helper', icon: '🤝', title: 'Community Pillar' });
@@ -109,6 +113,45 @@ exports.getUserStats = async (req, res) => {
             resolvedCount,
             badges
         });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Update user profile (Name, Bio, Multiple Images)
+// @route   PUT /api/auth/profile
+// @access  Private
+exports.updateProfile = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        // Update text fields
+        if (req.body.name) user.name = req.body.name;
+        if (req.body.bio) user.bio = req.body.bio;
+
+        // Handle profile and banner images from Multer (req.files)
+        if (req.files) {
+            if (req.files.profileImage) {
+                const path = req.files.profileImage[0].path;
+                // Prepend localhost if it's a local storage path, otherwise use Cloudinary URL
+                user.profileImage = path.includes('http') 
+                    ? path 
+                    : `http://localhost:5000/${path.replace(/\\/g, '/')}`;
+            }
+            if (req.files.bannerImage) {
+                const path = req.files.bannerImage[0].path;
+                user.bannerImage = path.includes('http') 
+                    ? path 
+                    : `http://localhost:5000/${path.replace(/\\/g, '/')}`;
+            }
+        }
+
+        await user.save();
+
+        // Return updated user without password
+        const updatedUser = await User.findById(user._id).select('-password');
+        res.json(updatedUser);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

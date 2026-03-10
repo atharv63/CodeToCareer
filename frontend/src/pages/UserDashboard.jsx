@@ -1,13 +1,14 @@
 import React, { useState, useContext, useEffect } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
+import { useLocation, useNavigate } from 'react-router-dom'; // Added for City Map navigation
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import ComplaintCard from '../components/ComplaintCard';
 import FixReportCard from '../components/FixReportCard';
 import NavBar from '../components/NavBar';
-import { X, MapPin, Image as ImageIcon, Send } from 'lucide-react';
+import { X, MapPin, Image as ImageIcon, Camera } from 'lucide-react'; 
 import '../styles/Dashboard.css';
 
 // Fix for default marker icons
@@ -39,9 +40,15 @@ const AutoCenter = ({ position }) => {
 
 const UserDashboard = () => {
     const { user } = useContext(AuthContext);
-    const [view, setView] = useState('feed'); // For mobile toggle
+    const location = useLocation();
+    const navigate = useNavigate();
+    
+    // Default view logic based on URL
+    const [view, setView] = useState(location.pathname === '/map' ? 'map' : 'feed'); 
     const [feedItems, setFeedItems] = useState([]);
     const [showForm, setShowForm] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [selectedIssue, setSelectedIssue] = useState(null);
     
     // Form State
     const [description, setDescription] = useState('');
@@ -50,8 +57,17 @@ const UserDashboard = () => {
     const [position, setPosition] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    // Pune Coordinates Default
-    const defaultCenter = [18.5204, 73.8567];
+    // Center set to Panaji, Goa 🌴
+    const defaultCenter = [15.4909, 73.8278];
+
+    // Effect to handle NavBar clicks to "City Map"
+    useEffect(() => {
+        if (location.pathname === '/map') {
+            setView('map');
+        } else {
+            setView('feed');
+        }
+    }, [location.pathname]);
 
     useEffect(() => {
         fetchFeed();
@@ -77,7 +93,6 @@ const UserDashboard = () => {
     const fetchFeed = async () => {
         try {
             const token = localStorage.getItem('token');
-            // Using a dummy res for now if your backend isn't up, otherwise keep your axios call
             const res = await axios.get('http://localhost:5000/api/feed', {
                 headers: { Authorization: `Bearer ${token}` }
             });
@@ -89,6 +104,9 @@ const UserDashboard = () => {
 
     const handleUpdateItem = (id, updates) => {
         setFeedItems(prev => prev.map(item => item._id === id ? { ...item, ...updates } : item));
+        if (selectedIssue && selectedIssue._id === id) {
+            setSelectedIssue(prev => ({ ...prev, ...updates }));
+        }
     };
 
     const handleImageChange = (e) => {
@@ -132,55 +150,66 @@ const UserDashboard = () => {
         }
     };
 
-    const getPinIcon = (status) => {
+    const getPinIcon = (status, isSelected = false) => {
         const color = status === 'Resolved' ? '#00ba7c' : '#f4212e';
+        const border = isSelected ? '3px solid #1d9bf0' : '2px solid #000';
+        const size = isSelected ? 22 : 16;
+        const shadow = isSelected ? '0 0 12px #1d9bf0' : 'none';
+        
         return L.divIcon({
-            html: `<div style="background-color: ${color}; width: 16px; height: 16px; border-radius: 50%; border: 2px solid #000;"></div>`,
+            html: `<div style="background-color: ${color}; width: 100%; height: 100%; border-radius: 50%; border: ${border}; box-shadow: ${shadow}; transition: all 0.2s;"></div>`,
             className: 'custom-pin',
-            iconSize: [16, 16]
+            iconSize: [size, size]
         });
     };
 
+    const filteredFeedItems = feedItems.filter(item => {
+        if (!searchQuery) return true;
+        const lowerCaseQuery = searchQuery.toLowerCase();
+        return (
+            item.description?.toLowerCase().includes(lowerCaseQuery) ||
+            item.status?.toLowerCase().includes(lowerCaseQuery) ||
+            item.userId?.name?.toLowerCase().includes(lowerCaseQuery)
+        );
+    });
+
     return (
         <div className="app-layout">
-            {/* Column 1: Left Sidebar */}
             <NavBar onOpenReportModal={() => setShowForm(true)} />
 
-            {/* Column 2: Center Feed */}
             <main className="feed-column">
                 <header className="feed-header">
-                    <h2>For You</h2>
-                    {/* Mobile Only View Toggle */}
+                    <h2>{view === 'map' ? 'City-Wide Analysis' : 'For You'}</h2>
                     <div className="mobile-toggle">
-                        <button className={view === 'feed' ? 'active' : ''} onClick={() => setView('feed')}>Feed</button>
-                        <button className={view === 'map' ? 'active' : ''} onClick={() => setView('map')}>Map</button>
+                        <button className={view === 'feed' ? 'active' : ''} onClick={() => navigate('/user')}>Feed</button>
+                        <button className={view === 'map' ? 'active' : ''} onClick={() => navigate('/map')}>Map</button>
                     </div>
                 </header>
 
                 <div className="feed-content">
-                    {/* Render Map on Mobile if toggled, otherwise Feed */}
                     {view === 'map' ? (
-                        <div className="mobile-map-container">
-                            <MapContainer center={defaultCenter} zoom={13} style={{ height: '100%', width: '100%' }}>
+                        <div className="expanded-map-container">
+                            <MapContainer center={defaultCenter} zoom={11} style={{ height: '100%', width: '100%', borderRadius: '16px' }}>
                                 <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" />
-                                {feedItems.map(item => (
+                                {filteredFeedItems.map(item => (
                                     <Marker 
                                         key={item._id} 
                                         position={item.location ? [item.location.lat, item.location.lng] : defaultCenter}
-                                        icon={getPinIcon(item.status)}
+                                        icon={getPinIcon(item.status, selectedIssue?._id === item._id)}
+                                        eventHandlers={{ click: () => setSelectedIssue(item) }}
                                     />
                                 ))}
                             </MapContainer>
                         </div>
                     ) : (
                         <>
-                            {feedItems.length === 0 ? (
+                            {filteredFeedItems.length === 0 ? (
                                 <div className="empty-state">
                                     <MapPin size={48} strokeWidth={1} />
-                                    <p>No civic reports in your area yet.</p>
+                                    <p>{searchQuery ? "No matching reports found." : "All quiet in Goa right now."}</p>
                                 </div>
                             ) : (
-                                feedItems.map(item => (
+                                filteredFeedItems.map(item => (
                                     item.feedItemType === 'fix' ? 
                                     <FixReportCard key={item._id} report={item} /> : 
                                     <ComplaintCard key={item._id} complaint={item} onUpdate={handleUpdateItem} />
@@ -191,30 +220,52 @@ const UserDashboard = () => {
                 </div>
             </main>
 
-            {/* Column 3: Right Sidebar (Desktop Only Map) */}
             <aside className="right-sidebar">
                 <div className="search-bar-container">
-                    <input type="text" placeholder="Search areas, issues..." className="search-input" />
+                    <input 
+                        type="text" 
+                        placeholder="Search issues, areas..." 
+                        className="search-input" 
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                    />
                 </div>
-                <div className="desktop-map-card">
-                    <h3>Live City Map</h3>
-                    <div className="map-wrapper">
-                        {/* Notice we use a dark theme map tile layer here for the UI */}
-                        <MapContainer center={defaultCenter} zoom={12} style={{ height: '100%', width: '100%' }}>
-                            <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" />
-                            {feedItems.map(item => (
-                                <Marker 
-                                    key={item._id} 
-                                    position={item.location ? [item.location.lat, item.location.lng] : defaultCenter}
-                                    icon={getPinIcon(item.status)}
-                                />
-                            ))}
-                        </MapContainer>
+                
+                {view !== 'map' && (
+                    <div className="desktop-map-card">
+                        <h3>Live City Map</h3>
+                        <div className="map-wrapper">
+                            <MapContainer center={defaultCenter} zoom={10} style={{ height: '100%', width: '100%' }}>
+                                <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" />
+                                {filteredFeedItems.map(item => (
+                                    <Marker 
+                                        key={item._id} 
+                                        position={item.location ? [item.location.lat, item.location.lng] : defaultCenter}
+                                        icon={getPinIcon(item.status, selectedIssue?._id === item._id)}
+                                        eventHandlers={{ click: () => setSelectedIssue(item) }}
+                                    />
+                                ))}
+                            </MapContainer>
+                        </div>
                     </div>
-                </div>
+                )}
+
+                {selectedIssue && (
+                    <div className="selected-issue-container">
+                        <div className="selected-header">
+                            <h3>Issue Details</h3>
+                            <button onClick={() => setSelectedIssue(null)} className="close-issue-btn">
+                                <X size={18} />
+                            </button>
+                        </div>
+                        {selectedIssue.feedItemType === 'fix' ? 
+                            <FixReportCard report={selectedIssue} /> : 
+                            <ComplaintCard complaint={selectedIssue} onUpdate={handleUpdateItem} />
+                        }
+                    </div>
+                )}
             </aside>
 
-            {/* Report Issue Modal (X Compose Style) */}
             {showForm && (
                 <div className="modal-overlay">
                     <div className="compose-modal">
@@ -223,7 +274,7 @@ const UserDashboard = () => {
                             <span className="modal-title">Draft Report</span>
                         </div>
                         
-                        <form onSubmit={handleSubmit} className="compose-form">
+                        <form onSubmit={handleSubmit} className="compose-form-wrapper">
                             <div className="compose-body">
                                 <div className="compose-avatar">{user?.name?.charAt(0) || 'U'}</div>
                                 <div className="compose-input-area">
@@ -242,7 +293,6 @@ const UserDashboard = () => {
                                         </div>
                                     )}
 
-                                    {/* Mini Map for pinning location */}
                                     <div className="mini-map-picker">
                                         <div className="map-picker-header">
                                             <span style={{fontSize: '0.85rem', color: 'var(--text-muted)'}}>Pin exact location</span>
@@ -261,13 +311,17 @@ const UserDashboard = () => {
                             
                             <div className="compose-footer">
                                 <div className="compose-actions">
-                                    <label className="action-icon" title="Add Photo">
+                                    <label className="action-icon" title="Add Photo from Gallery">
                                         <ImageIcon size={20} color="var(--primary-accent)" />
                                         <input type="file" accept="image/*" onChange={handleImageChange} required={!preview} style={{ display: 'none' }} />
                                     </label>
+                                    <label className="action-icon" title="Take Photo">
+                                        <Camera size={20} color="var(--primary-accent)" />
+                                        <input type="file" accept="image/*" capture="environment" onChange={handleImageChange} required={!preview} style={{ display: 'none' }} />
+                                    </label>
                                 </div>
                                 <button type="submit" className="btn-primary" disabled={isSubmitting}>
-                                    {isSubmitting ? 'Posting...' : 'Post Report'}
+                                    {isSubmitting ? 'Posting...' : 'Report Issue'}
                                 </button>
                             </div>
                         </form>

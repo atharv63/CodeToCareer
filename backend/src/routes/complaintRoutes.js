@@ -9,13 +9,17 @@ const {
     assignComplaint, 
     getAssignedComplaints, 
     updateStatus,
-    toggleUpvote
+    toggleUpvote,
+    addComment // <-- IMPORTED THE NEW FUNCTION
 } = require('../controllers/complaintController');
 
 // User Routes
 router.post('/', protect, authorize('User'), upload.single('image'), createComplaint);
 router.get('/me', protect, authorize('User'), getMyComplaints);
 router.post('/:id/upvote', protect, authorize('User'), toggleUpvote);
+
+// 👇 THE NEW COMMENT ROUTE 👇 (Anyone logged in can comment)
+router.post('/:id/comments', protect, addComment);
 
 // Public Feed / Admin View
 router.get('/', protect, authorize('Admin', 'User'), getAllComplaints);

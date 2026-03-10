@@ -1,164 +1,260 @@
 /* src/styles/ComplaintCard.css */
 
-.tweet-card {
-    display: flex;
-    padding: 12px 16px;
-    border-bottom: 1px solid var(--border-color);
+.premium-card {
     background-color: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    margin-bottom: 16px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
     cursor: pointer;
-    transition: background-color 0.2s ease;
 }
 
-.tweet-card:hover {
+.premium-card:hover {
     background-color: var(--hover-overlay);
+    border-color: rgba(29, 155, 240, 0.3);
 }
 
-.tweet-left {
-    margin-right: 12px;
-    flex-shrink: 0;
+/* --- Header Section --- */
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
 }
 
-.tweet-avatar {
-    width: 40px;
-    height: 40px;
+.card-user {
+    display: flex;
+    align-items: center;
+}
+
+.card-avatar {
+    width: 42px;
+    height: 42px;
     background-color: var(--primary-accent);
     color: white;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: 700;
+    font-weight: 800;
     font-size: 1.2rem;
+    margin-right: 12px;
 }
 
-.tweet-right {
-    flex: 1;
-    min-width: 0; /* Prevents flex flex-children from blowing out the width */
-}
-
-.tweet-header {
+.card-meta {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 4px;
+    flex-direction: column;
 }
 
-.tweet-user-info {
-    display: flex;
-    align-items: center;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.tweet-name {
+.card-name {
     font-weight: 700;
     color: var(--text-main);
-    margin-right: 4px;
+    font-size: 1rem;
 }
 
-.tweet-name:hover {
-    text-decoration: underline;
-}
-
-.tweet-handle, .tweet-time {
+.card-time {
     color: var(--text-muted);
-    font-size: 0.95rem;
+    font-size: 0.85rem;
+    margin-top: 2px;
 }
 
-.tweet-dot {
-    color: var(--text-muted);
-    margin: 0 4px;
-}
-
-.tweet-status {
+/* --- Status Badges --- */
+.status-badge {
     font-size: 0.75rem;
-    font-weight: 700;
-    padding: 2px 8px;
+    font-weight: 800;
+    padding: 4px 12px;
     border-radius: 9999px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
-/* Status Pill Colors */
-.status-resolved { background-color: rgba(0, 186, 124, 0.15); color: #00ba7c; }
-.status-progress { background-color: rgba(29, 155, 240, 0.15); color: #1d9bf0; }
-.status-assigned { background-color: rgba(255, 173, 31, 0.15); color: #ffad1f; }
-.status-pending { background-color: rgba(244, 33, 46, 0.15); color: #f4212e; }
+.status-resolved { background-color: rgba(0, 186, 124, 0.15); color: #00ba7c; border: 1px solid rgba(0, 186, 124, 0.3); }
+.status-progress { background-color: rgba(29, 155, 240, 0.15); color: #1d9bf0; border: 1px solid rgba(29, 155, 240, 0.3); }
+.status-assigned { background-color: rgba(255, 173, 31, 0.15); color: #ffad1f; border: 1px solid rgba(255, 173, 31, 0.3); }
+.status-pending { background-color: rgba(244, 33, 46, 0.15); color: #f4212e; border: 1px solid rgba(244, 33, 46, 0.3); }
 
-.tweet-text {
-    font-size: 0.95rem;
+/* --- Body Section --- */
+.card-body {
+    margin-bottom: 16px;
+}
+
+.card-text {
+    font-size: 1rem;
     line-height: 1.5;
     color: var(--text-main);
-    margin: 0 0 12px 0;
+    margin: 0;
     word-wrap: break-word;
 }
 
-.tweet-media {
-    margin-top: 12px;
-    border-radius: 16px;
+/* --- Media Section --- */
+.card-media {
+    border-radius: 12px;
     overflow: hidden;
     border: 1px solid var(--border-color);
+    margin-bottom: 16px;
 }
 
-.tweet-media img {
+.card-media img {
     width: 100%;
-    max-height: 500px;
+    max-height: 450px;
     object-fit: cover;
     display: block;
 }
 
-.tweet-actions {
+/* --- Footer & Actions Section --- */
+.card-footer {
     display: flex;
     justify-content: space-between;
-    margin-top: 12px;
-    max-width: 425px;
+    align-items: center;
+    border-top: 1px solid var(--border-color);
+    padding-top: 12px;
+    margin-top: auto;
 }
 
-.action-group {
+.action-btn {
     display: flex;
     align-items: center;
-    color: var(--text-muted);
+    gap: 6px;
     background: none;
     border: none;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    font-weight: 600;
     cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
     text-decoration: none;
-    transition: color 0.2s ease;
 }
 
-.action-icon-bg {
+.action-count { font-weight: 800; }
+
+.boost-btn:hover, .boost-btn.boosted { color: #00ba7c; }
+.boost-btn:hover { background-color: rgba(0, 186, 124, 0.1); }
+.comment-btn:hover { color: #1d9bf0; background-color: rgba(29, 155, 240, 0.1); }
+.location-btn:hover { color: #ffad1f; background-color: rgba(255, 173, 31, 0.1); }
+.fix-btn:hover { background-color: rgba(0, 186, 124, 0.1); }
+
+@media (min-width: 1025px) {
+    .location-btn { display: none; }
+}
+
+/* =========================================
+   NEW PROFESSIONAL COMMENTS SECTION
+========================================= */
+
+.comments-section {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* Input Bar Redesign */
+.comment-form {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background-color: var(--bg-elevated); /* Slightly lighter than background */
+    border: 1px solid var(--border-color);
+    padding: 8px 12px;
+    border-radius: 24px; /* Pill shape */
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.comment-form:focus-within {
+    border-color: var(--primary-accent);
+    box-shadow: 0 0 0 1px var(--primary-accent);
+}
+
+.mini-avatar {
+    width: 28px;
+    height: 28px;
+    background-color: var(--primary-accent);
+    color: white;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
+    font-size: 0.8rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.comment-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--text-main);
+    font-size: 0.95rem;
+    outline: none;
+}
+
+.comment-submit {
+    background: none;
+    border: none;
+    color: var(--primary-accent);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    transition: opacity 0.2s;
+}
+
+.comment-submit:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+/* Comment List Container (Scrollable) */
+.comments-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: 280px; /* Prevents card from getting too long */
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+/* Custom Scrollbar for Comments */
+.comments-list::-webkit-scrollbar {
+    width: 6px;
+}
+.comments-list::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+/* Individual Comment Block */
+.comment-bubble {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--bg-elevated);
+    border: 1px solid var(--border-color);
+    padding: 12px 14px;
+    border-radius: 12px;
     transition: background-color 0.2s ease;
-    margin-right: 4px;
 }
 
-.action-count {
+.comment-bubble:hover {
+    background-color: rgba(255, 255, 255, 0.03);
+}
+
+.comment-author {
     font-size: 0.85rem;
-    padding-right: 12px;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 4px;
 }
 
-/* Hover effects for actions just like X */
-.upvote-group:hover, .upvote-group.upvoted {
-    color: #f91880;
-}
-
-.upvote-group:hover .action-icon-bg {
-    background-color: rgba(249, 24, 128, 0.1);
-}
-
-.location-group:hover {
-    color: #1d9bf0;
-}
-
-.location-group:hover .action-icon-bg {
-    background-color: rgba(29, 155, 240, 0.1);
-}
-
-.fix-group:hover .action-icon-bg {
-    background-color: rgba(0, 186, 124, 0.1);
+.comment-text {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    line-height: 1.4;
 }
