@@ -4,8 +4,8 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
 // Helper to generate JWT
-const generateToken = (id, role, cityId, departmentId) => {
-    return jwt.sign({ id, role, cityId, departmentId }, process.env.JWT_SECRET, {
+const generateToken = (id, role, cityId, departmentId, municipalityId) => {
+    return jwt.sign({ id, role, cityId, departmentId, municipalityId }, process.env.JWT_SECRET, {
         expiresIn: '30d',
     });
 };
@@ -15,7 +15,7 @@ const generateToken = (id, role, cityId, departmentId) => {
 // @access  Public
 exports.register = async (req, res) => {
     try {
-        const { name, email, password, role, cityId, departmentId } = req.body;
+        const { name, email, password, role, cityId, departmentId, municipalityId } = req.body;
 
         // Check if user exists
         let user = await User.findOne({ email });
@@ -34,7 +34,8 @@ exports.register = async (req, res) => {
             password: hashedPassword,
             role: role || 'User',
             cityId,
-            departmentId
+            departmentId,
+            municipalityId
         });
 
         res.status(201).json({
@@ -42,7 +43,8 @@ exports.register = async (req, res) => {
             name: user.name,
             email: user.email,
             role: user.role,
-            token: generateToken(user._id, user.role, user.cityId, user.departmentId),
+            municipalityId: user.municipalityId,
+            token: generateToken(user._id, user.role, user.cityId, user.departmentId, user.municipalityId),
         });
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -68,7 +70,8 @@ exports.login = async (req, res) => {
                 profileImage: user.profileImage,
                 bannerImage: user.bannerImage,
                 bio: user.bio,
-                token: generateToken(user._id, user.role, user.cityId, user.departmentId),
+                municipalityId: user.municipalityId,
+                token: generateToken(user._id, user.role, user.cityId, user.departmentId, user.municipalityId),
             });
         } else {
             res.status(401).json({ message: 'Invalid credentials' });
@@ -134,7 +137,6 @@ exports.updateProfile = async (req, res) => {
         if (req.files) {
             if (req.files.profileImage) {
                 const path = req.files.profileImage[0].path;
-                // Prepend localhost if it's a local storage path, otherwise use Cloudinary URL
                 user.profileImage = path.includes('http') 
                     ? path 
                     : `http://localhost:5000/${path.replace(/\\/g, '/')}`;

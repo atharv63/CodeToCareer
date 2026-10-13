@@ -31,8 +31,8 @@ export const AuthProvider = ({ children }) => {
         setUser(res.data);
     };
 
-    const register = async (name, email, password, role) => {
-        const res = await axios.post('http://localhost:5000/api/auth/register', { name, email, password, role });
+    const register = async (name, email, password, role, municipalityId) => {
+        const res = await axios.post('http://localhost:5000/api/auth/register', { name, email, password, role, municipalityId });
         localStorage.setItem('token', res.data.token);
         setUser(res.data);
     };
@@ -43,8 +43,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        // 👇 FIX: Added 'register' right here! 👇
-        <AuthContext.Provider value={{ user, setUser, login, register, logout, loading }}>            
+        <AuthContext.Provider value={{ user, setUser, login, register, logout, loading }}>
             {children}
         </AuthContext.Provider>
     );

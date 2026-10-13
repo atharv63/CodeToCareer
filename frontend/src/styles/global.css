@@ -8,11 +8,14 @@
   --border-color: #2f3336;
   --text-main: #e7e9ea;
   --text-muted: #71767b;
-  --primary-accent: #1d9bf0; /* Premium Blue */
+  --primary-accent: #1d9bf0; 
   --primary-hover: #1a8cd8;
   --success-color: #00ba7c;
   --danger-color: #f4212e;
   --hover-overlay: rgba(255, 255, 255, 0.03);
+  /* NEW: Premium Glows & Shadows */
+  --glow-primary: rgba(29, 155, 240, 0.4);
+  --card-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 * {
@@ -43,7 +46,7 @@ body {
   background: transparent;
 }
 
-/* Universal Button Styling */
+/* Universal Button Styling - UPGRADED WITH HOVER/ACTIVE STATES */
 .btn-primary {
   background-color: var(--primary-accent);
   color: white;
@@ -53,11 +56,26 @@ body {
   font-weight: 700;
   font-size: 15px;
   cursor: pointer;
-  transition: background-color 0.2s;
+  box-shadow: 0 0 0 0 var(--glow-primary);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 .btn-primary:hover {
   background-color: var(--primary-hover);
+  box-shadow: 0 4px 12px var(--glow-primary);
+  transform: translateY(-2px); /* 3D Lift effect */
+}
+
+.btn-primary:active {
+  transform: translateY(1px); /* Push down when clicked */
+  box-shadow: 0 2px 6px var(--glow-primary);
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 /* Mobile Responsiveness */

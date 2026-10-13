@@ -1,73 +1,55 @@
-import React, { useState } from "react";
-import API from "../services/api";
+import React, { useState } from 'react';
+import API from '../services/api';
 
 const MunicipalityManager = ({ municipalities, refresh }) => {
-  const [name, setName] = useState("");
-  const [city, setCity] = useState("");
+    const [name, setName] = useState('');
+    const [city, setCity] = useState(''); // Or you can pass cityId if your backend expects an ID
 
-  const createMunicipality = async () => {
-    if (!name || !city) return alert("Fill fields");
+    const handleAdd = async (e) => {
+        e.preventDefault();
+        try {
+            await API.post('/admin/municipalities', { name, city });
+            setName('');
+            setCity('');
+            refresh();
+        } catch (error) {
+            console.error('Failed to add municipality', error);
+            alert('Failed to add municipality');
+        }
+    };
 
-    try {
-      await API.post("/admin/municipalities", { name, city });
+    return (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <form onSubmit={handleAdd} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <input 
+                    type="text" 
+                    placeholder="Municipality Name (e.g., Panaji Municipal)" 
+                    value={name} 
+                    onChange={(e) => setName(e.target.value)} 
+                    className="search-input"
+                    style={{ borderRadius: '8px', border: '1px solid var(--border-color)', background: 'transparent' }}
+                    required 
+                />
+                <input 
+                    type="text" 
+                    placeholder="City (e.g., Goa)" 
+                    value={city} 
+                    onChange={(e) => setCity(e.target.value)} 
+                    className="search-input"
+                    style={{ borderRadius: '8px', border: '1px solid var(--border-color)', background: 'transparent' }}
+                    required 
+                />
+                <button type="submit" className="btn-primary" style={{ padding: '10px', borderRadius: '8px', fontWeight: 'bold' }}>
+                    Add Municipality
+                </button>
+            </form>
 
-      setName("");
-      setCity("");
-
-      refresh();
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const deleteMunicipality = async (id) => {
-    try {
-      await API.delete(`/admin/municipalities/${id}`);
-      refresh();
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  return (
-    <div style={{ marginBottom: "40px" }}>
-      <h2>Municipalities</h2>
-
-      <div style={{ display: "flex", gap: "10px", marginBottom: "15px" }}>
-        <input
-          placeholder="Municipality name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-
-        <input
-          placeholder="City"
-          value={city}
-          onChange={(e) => setCity(e.target.value)}
-        />
-
-        <button onClick={createMunicipality}>Add</button>
-      </div>
-
-      {municipalities.map((m) => (
-        <div
-          key={m.id}
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            borderBottom: "1px solid #e5e7eb",
-            padding: "8px 0",
-          }}
-        >
-          <span>
-            {m.name} ({m.city})
-          </span>
-
-          <button onClick={() => deleteMunicipality(m.id)}>Delete</button>
+            {/* Optional: A tiny list to show what's already added */}
+            <div style={{ marginTop: '10px', borderTop: '1px solid var(--border-color)', paddingTop: '10px' }}>
+                <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Currently Active: {municipalities.length}</span>
+            </div>
         </div>
-      ))}
-    </div>
-  );
+    );
 };
 
 export default MunicipalityManager;

@@ -2,13 +2,13 @@ import React, { useState, useContext, useEffect } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
-import { useLocation, useNavigate } from 'react-router-dom'; // Added for City Map navigation
+import { useLocation, useNavigate } from 'react-router-dom'; 
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import ComplaintCard from '../components/ComplaintCard';
 import FixReportCard from '../components/FixReportCard';
 import NavBar from '../components/NavBar';
-import { X, MapPin, Image as ImageIcon, Camera } from 'lucide-react'; 
+import { X, MapPin, Image as ImageIcon, Camera } from 'lucide-react';
 import '../styles/Dashboard.css';
 
 // Fix for default marker icons
@@ -27,7 +27,18 @@ const LocationPicker = ({ position, setPosition }) => {
     useMapEvents({
         click(e) { setPosition(e.latlng); },
     });
-    return position === null ? null : <Marker position={position}></Marker>;
+
+    return position === null ? null : (
+        <Marker
+            position={position}
+            draggable={true} 
+            eventHandlers={{
+                dragend: (e) => {
+                    setPosition(e.target.getLatLng());
+                },
+            }}
+        ></Marker>
+    );
 };
 
 const AutoCenter = ({ position }) => {
@@ -42,25 +53,21 @@ const UserDashboard = () => {
     const { user } = useContext(AuthContext);
     const location = useLocation();
     const navigate = useNavigate();
-    
-    // Default view logic based on URL
-    const [view, setView] = useState(location.pathname === '/map' ? 'map' : 'feed'); 
+
+    const [view, setView] = useState(location.pathname === '/map' ? 'map' : 'feed');
     const [feedItems, setFeedItems] = useState([]);
     const [showForm, setShowForm] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedIssue, setSelectedIssue] = useState(null);
-    
-    // Form State
+
     const [description, setDescription] = useState('');
     const [image, setImage] = useState(null);
     const [preview, setPreview] = useState(null);
     const [position, setPosition] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    // Center set to Panaji, Goa 🌴
     const defaultCenter = [15.4909, 73.8278];
 
-    // Effect to handle NavBar clicks to "City Map"
     useEffect(() => {
         if (location.pathname === '/map') {
             setView('map');
@@ -117,11 +124,15 @@ const UserDashboard = () => {
             reader.onloadend = () => setPreview(reader.result);
             reader.readAsDataURL(file);
         }
+        // 👇 FIX: Reset input value so you can re-upload the same file if you delete it
+        e.target.value = '';
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!position) return alert('Please pin the location on the map');
+        
+        if (!position) return alert('Please pin the exact location on the map.');
+        if (!image && !preview) return alert('Please upload a photo of the issue.');
         
         setIsSubmitting(true);
         const formData = new FormData();
@@ -142,9 +153,10 @@ const UserDashboard = () => {
             setDescription('');
             setImage(null);
             setPreview(null);
-            fetchFeed();
+            fetchFeed(); 
         } catch (error) {
-            alert('Failed to post report');
+            console.error('Backend Error:', error.response?.data || error.message);
+            alert(`Failed to post report: ${error.response?.data?.message || '500 Server Error'}`);
         } finally {
             setIsSubmitting(false);
         }
@@ -155,7 +167,7 @@ const UserDashboard = () => {
         const border = isSelected ? '3px solid #1d9bf0' : '2px solid #000';
         const size = isSelected ? 22 : 16;
         const shadow = isSelected ? '0 0 12px #1d9bf0' : 'none';
-        
+
         return L.divIcon({
             html: `<div style="background-color: ${color}; width: 100%; height: 100%; border-radius: 50%; border: ${border}; box-shadow: ${shadow}; transition: all 0.2s;"></div>`,
             className: 'custom-pin',
@@ -190,10 +202,10 @@ const UserDashboard = () => {
                     {view === 'map' ? (
                         <div className="expanded-map-container">
                             <MapContainer center={defaultCenter} zoom={11} style={{ height: '100%', width: '100%', borderRadius: '16px' }}>
-                                <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" />
+                                <TileLayer url="https://tile.openstreetmap.org/{z}/{x}/{y}.png" attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' />
                                 {filteredFeedItems.map(item => (
-                                    <Marker 
-                                        key={item._id} 
+                                    <Marker
+                                        key={item._id}
                                         position={item.location ? [item.location.lat, item.location.lng] : defaultCenter}
                                         icon={getPinIcon(item.status, selectedIssue?._id === item._id)}
                                         eventHandlers={{ click: () => setSelectedIssue(item) }}
@@ -210,9 +222,9 @@ const UserDashboard = () => {
                                 </div>
                             ) : (
                                 filteredFeedItems.map(item => (
-                                    item.feedItemType === 'fix' ? 
-                                    <FixReportCard key={item._id} report={item} /> : 
-                                    <ComplaintCard key={item._id} complaint={item} onUpdate={handleUpdateItem} />
+                                    item.feedItemType === 'fix' ?
+                                        <FixReportCard key={item._id} report={item} /> :
+                                        <ComplaintCard key={item._id} complaint={item} onUpdate={handleUpdateItem} />
                                 ))
                             )}
                         </>
@@ -222,24 +234,24 @@ const UserDashboard = () => {
 
             <aside className="right-sidebar">
                 <div className="search-bar-container">
-                    <input 
-                        type="text" 
-                        placeholder="Search issues, areas..." 
-                        className="search-input" 
+                    <input
+                        type="text"
+                        placeholder="Search issues, areas..."
+                        className="search-input"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />
                 </div>
-                
+
                 {view !== 'map' && (
                     <div className="desktop-map-card">
                         <h3>Live City Map</h3>
                         <div className="map-wrapper">
                             <MapContainer center={defaultCenter} zoom={10} style={{ height: '100%', width: '100%' }}>
-                                <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" />
+                                <TileLayer url="https://tile.openstreetmap.org/{z}/{x}/{y}.png" attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' />
                                 {filteredFeedItems.map(item => (
-                                    <Marker 
-                                        key={item._id} 
+                                    <Marker
+                                        key={item._id}
                                         position={item.location ? [item.location.lat, item.location.lng] : defaultCenter}
                                         icon={getPinIcon(item.status, selectedIssue?._id === item._id)}
                                         eventHandlers={{ click: () => setSelectedIssue(item) }}
@@ -258,8 +270,8 @@ const UserDashboard = () => {
                                 <X size={18} />
                             </button>
                         </div>
-                        {selectedIssue.feedItemType === 'fix' ? 
-                            <FixReportCard report={selectedIssue} /> : 
+                        {selectedIssue.feedItemType === 'fix' ?
+                            <FixReportCard report={selectedIssue} /> :
                             <ComplaintCard complaint={selectedIssue} onUpdate={handleUpdateItem} />
                         }
                     </div>
@@ -273,34 +285,34 @@ const UserDashboard = () => {
                             <button onClick={() => setShowForm(false)} className="close-btn"><X size={24} /></button>
                             <span className="modal-title">Draft Report</span>
                         </div>
-                        
+
                         <form onSubmit={handleSubmit} className="compose-form-wrapper">
                             <div className="compose-body">
                                 <div className="compose-avatar">{user?.name?.charAt(0) || 'U'}</div>
                                 <div className="compose-input-area">
-                                    <textarea 
-                                        rows="4" 
-                                        value={description} 
-                                        onChange={(e) => setDescription(e.target.value)} 
-                                        placeholder="What's broken? Add details..." 
-                                        required 
+                                    <textarea
+                                        rows="4"
+                                        value={description}
+                                        onChange={(e) => setDescription(e.target.value)}
+                                        placeholder="What's broken? Add details..."
+                                        required
                                     />
-                                    
+
                                     {preview && (
                                         <div className="image-preview-container">
                                             <img src={preview} alt="Proof" className="image-preview" />
-                                            <button type="button" onClick={() => {setImage(null); setPreview(null)}} className="remove-image-btn"><X size={16}/></button>
+                                            <button type="button" onClick={() => { setImage(null); setPreview(null) }} className="remove-image-btn"><X size={16} /></button>
                                         </div>
                                     )}
 
                                     <div className="mini-map-picker">
                                         <div className="map-picker-header">
-                                            <span style={{fontSize: '0.85rem', color: 'var(--text-muted)'}}>Pin exact location</span>
+                                            <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Tap map or drag pin to adjust location</span>                                            
                                             <button type="button" onClick={handleLocateMe} className="locate-me-btn">Use GPS</button>
                                         </div>
                                         <div className="mini-map-wrapper">
                                             <MapContainer center={position || defaultCenter} zoom={position ? 16 : 12} style={{ height: '100%', width: '100%' }}>
-                                                <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" />
+                                                <TileLayer url="https://tile.openstreetmap.org/{z}/{x}/{y}.png" attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' />
                                                 <LocationPicker position={position} setPosition={setPosition} />
                                                 <AutoCenter position={position} />
                                             </MapContainer>
@@ -308,17 +320,19 @@ const UserDashboard = () => {
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div className="compose-footer">
                                 <div className="compose-actions">
-                                    <label className="action-icon" title="Add Photo from Gallery">
+                                    {/* 👇 FIX: Using htmlFor and id to bulletproof the click event 👇 */}
+                                    <label htmlFor="gallery-upload" className="action-icon" title="Add Photo from Gallery" style={{ cursor: 'pointer' }}>
                                         <ImageIcon size={20} color="var(--primary-accent)" />
-                                        <input type="file" accept="image/*" onChange={handleImageChange} required={!preview} style={{ display: 'none' }} />
                                     </label>
-                                    <label className="action-icon" title="Take Photo">
+                                    <input id="gallery-upload" type="file" accept="image/*" onChange={handleImageChange} style={{ display: 'none' }} />
+                                    
+                                    <label htmlFor="camera-upload" className="action-icon" title="Take Photo" style={{ cursor: 'pointer' }}>
                                         <Camera size={20} color="var(--primary-accent)" />
-                                        <input type="file" accept="image/*" capture="environment" onChange={handleImageChange} required={!preview} style={{ display: 'none' }} />
                                     </label>
+                                    <input id="camera-upload" type="file" accept="image/*" capture="environment" onChange={handleImageChange} style={{ display: 'none' }} />
                                 </div>
                                 <button type="submit" className="btn-primary" disabled={isSubmitting}>
                                     {isSubmitting ? 'Posting...' : 'Report Issue'}

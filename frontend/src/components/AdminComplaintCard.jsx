@@ -1,28 +1,40 @@
 import React, { useState } from "react";
 import API from "../services/api";
+import { MapPin, ShieldAlert, CheckCircle, Trash2 } from "lucide-react";
+import { MapContainer, TileLayer, Marker } from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+
+// Fix for default marker icons
+import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
+import markerIcon from 'leaflet/dist/images/marker-icon.png';
+import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+    iconRetinaUrl: markerIcon2x,
+    iconUrl: markerIcon,
+    shadowUrl: markerShadow
+});
 
 const AdminComplaintCard = ({ complaint, municipalities, refresh }) => {
   const [municipalityId, setMunicipalityId] = useState("");
+  const [showMap, setShowMap] = useState(false);
   const complaintId = complaint.id || complaint._id;
-  const cityName = complaint.city || "City not available";
 
-  const assignComplaint = async () => {
-    if (!municipalityId) return alert("Select municipality");
-
+  const assignComplaint = async (e) => {
+    e.stopPropagation();
+    if (!municipalityId) return alert("Select municipality first");
     try {
-      await API.put("/admin/complaints/assign", {
-        complaintId,
-        municipalityId,
-      });
-
-      alert("Complaint assigned");
+      await API.put("/admin/complaints/assign", { complaintId, municipalityId });
       refresh();
     } catch (error) {
       console.error(error);
     }
   };
 
-  const markSpam = async () => {
+  const markSpam = async (e) => {
+    e.stopPropagation();
     try {
       await API.put(`/admin/complaints/spam/${complaintId}`);
       refresh();
@@ -31,7 +43,8 @@ const AdminComplaintCard = ({ complaint, municipalities, refresh }) => {
     }
   };
 
-  const deleteComplaint = async () => {
+  const deleteComplaint = async (e) => {
+    e.stopPropagation();
     try {
       await API.delete(`/admin/complaints/${complaintId}`);
       refresh();
@@ -40,150 +53,101 @@ const AdminComplaintCard = ({ complaint, municipalities, refresh }) => {
     }
   };
 
+  const getStatusStyle = (status) => {
+      switch (status) {
+          case 'Resolved': return 'status-resolved';
+          case 'In Progress': return 'status-progress';
+          case 'Assigned': return 'status-assigned';
+          default: return 'status-pending';
+      }
+  };
+
   return (
-    <div
-      style={{
-        border: "1px solid #e5e7eb",
-        padding: "20px",
-        borderRadius: "10px",
-        marginBottom: "20px",
-        background: "white",
-        boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "start",
-          marginBottom: "15px",
-        }}
-      >
-        <div>
-          <h4 style={{ margin: "0 0 5px 0" }}>{complaint.user?.name}</h4>
-          <p style={{ color: "#666", margin: "0", fontSize: "14px" }}>
-            {complaint.user?.email}
-          </p>
+    <article className="premium-card">
+      <div className="card-header">
+        <div className="card-user">
+          <div className="card-avatar">
+            {complaint.user?.name?.charAt(0) || "U"}
+          </div>
+          <div className="card-meta">
+            <span className="card-name">{complaint.user?.name || "Unknown Citizen"}</span>
+            <span className="card-time">{complaint.user?.email}</span>
+          </div>
         </div>
-        <span
-          style={{
-            background: "#fef3c7",
-            color: "#92400e",
-            padding: "5px 12px",
-            borderRadius: "20px",
-            fontSize: "14px",
-            fontWeight: "bold",
-          }}
-        >
-          {complaint.status}
-        </span>
+        <div className={`status-badge ${getStatusStyle(complaint.status)}`}>
+          {complaint.status || 'Pending'}
+        </div>
       </div>
 
-      <p style={{ margin: "10px 0", lineHeight: "1.5" }}>
-        {complaint.description}
-      </p>
-
-      <div
-        style={{
-          background: "#f3f4f6",
-          padding: "10px 12px",
-          borderRadius: "8px",
-          marginBottom: "15px",
-          fontSize: "14px",
-        }}
-      >
-        <strong>City:</strong> {cityName}
+      <div className="card-body">
+        <p className="card-text">{complaint.description}</p>
       </div>
 
       {complaint.userImageURL && (
-        <img
-          src={complaint.userImageURL}
-          alt="complaint"
-          style={{
-            width: "100%",
-            maxHeight: "250px",
-            objectFit: "cover",
-            borderRadius: "8px",
-            marginBottom: "15px",
-          }}
-        />
+        <div className="card-media">
+          <img src={complaint.userImageURL} alt="Issue" loading="lazy" />
+        </div>
       )}
 
-      <div
-        style={{
-          display: "flex",
-          gap: "10px",
-          alignItems: "center",
-          flexWrap: "wrap",
-        }}
-      >
-        <select
-          value={municipalityId}
-          onChange={(e) => setMunicipalityId(e.target.value)}
-          style={{
-            padding: "8px 12px",
-            borderRadius: "6px",
-            border: "1px solid #d1d5db",
-            fontSize: "14px",
-          }}
+      {/* Map Toggle Button */}
+      <div className="card-footer" style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '12px', marginBottom: '12px' }}>
+        <button 
+          className="action-btn location-btn" 
+          onClick={(e) => { e.stopPropagation(); setShowMap(!showMap); }}
         >
-          <option value="">Select Municipality</option>
-          {municipalities.map((m) => (
-            <option key={m._id} value={m._id}>
-              {m.name}
-            </option>
-          ))}
-        </select>
-
-        <button
-          onClick={assignComplaint}
-          style={{
-            padding: "8px 15px",
-            background: "#3b82f6",
-            color: "white",
-            border: "none",
-            borderRadius: "6px",
-            cursor: "pointer",
-            fontSize: "14px",
-            fontWeight: "bold",
-          }}
-        >
-          Assign
-        </button>
-
-        <button
-          onClick={markSpam}
-          style={{
-            padding: "8px 15px",
-            background: "#ef4444",
-            color: "white",
-            border: "none",
-            borderRadius: "6px",
-            cursor: "pointer",
-            fontSize: "14px",
-            fontWeight: "bold",
-          }}
-        >
-          Spam
-        </button>
-
-        <button
-          onClick={deleteComplaint}
-          style={{
-            padding: "8px 15px",
-            background: "#6b7280",
-            color: "white",
-            border: "none",
-            borderRadius: "6px",
-            cursor: "pointer",
-            fontSize: "14px",
-            fontWeight: "bold",
-          }}
-        >
-          Delete
+          <MapPin size={20} />
+          <span>{showMap ? "Hide Map" : "View Map"}</span>
         </button>
       </div>
-    </div>
+
+      {showMap && complaint.location && (
+        <div style={{ height: '200px', width: 'calc(100% - 32px)', margin: '0 16px 16px', borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
+          <MapContainer center={[complaint.location.lat, complaint.location.lng]} zoom={15} style={{ height: '100%', width: '100%' }} scrollWheelZoom={false}>
+            <TileLayer url="https://tile.openstreetmap.org/{z}/{x}/{y}.png" attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' />
+            <Marker position={[complaint.location.lat, complaint.location.lng]} />
+          </MapContainer>
+        </div>
+      )}
+
+      {/* Admin Action Bar */}
+      <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', padding: '0 16px 16px', alignItems: 'center' }} onClick={(e) => e.stopPropagation()}>
+        
+        {/* 👇 FIX: Hide Assign and Spam if it's already Resolved 👇 */}
+        {complaint.status !== 'Resolved' ? (
+          <>
+            <select 
+              value={municipalityId} 
+              onChange={(e) => setMunicipalityId(e.target.value)}
+              className="search-input"
+              style={{ padding: '8px 16px', borderRadius: '20px', flex: 1, minWidth: '150px', background: 'var(--bg-color)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
+            >
+              <option value="">Select Municipality...</option>
+              {municipalities.map((m) => (
+                <option key={m._id} value={m._id}>{m.name}</option>
+              ))}
+            </select>
+
+            <button onClick={assignComplaint} className="btn-primary" style={{ padding: '8px 16px', borderRadius: '20px', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.9rem' }}>
+              <CheckCircle size={16} /> Assign
+            </button>
+
+            <button onClick={markSpam} style={{ padding: '8px 16px', background: 'rgba(249, 24, 128, 0.1)', color: '#f91880', border: '1px solid rgba(249, 24, 128, 0.3)', borderRadius: '20px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 'bold', fontSize: '0.9rem' }}>
+              <ShieldAlert size={16} /> Spam
+            </button>
+          </>
+        ) : (
+          <div style={{ flex: 1, color: '#00ba7c', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold', fontSize: '0.9rem' }}>
+            <CheckCircle size={18} /> Fixed & Verified
+          </div>
+        )}
+
+        {/* Delete button stays visible for Admins to clean up the DB */}
+        <button onClick={deleteComplaint} style={{ padding: '8px 16px', background: 'rgba(113, 118, 123, 0.1)', color: '#71767b', border: '1px solid rgba(113, 118, 123, 0.3)', borderRadius: '20px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 'bold', fontSize: '0.9rem' }}>
+          <Trash2 size={16} /> Delete
+        </button>
+      </div>
+
+    </article>
   );
 };
 

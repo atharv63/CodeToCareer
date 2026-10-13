@@ -1,12 +1,14 @@
+/* src/styles/Sidebar.css */
+
 .sidebar {
-    position: sticky; /* <--- THIS IS THE MAGIC FIX (Changed from 'fixed') */
+    position: sticky;
     top: 0;
     height: 100vh;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     padding: 1rem 1.5rem;
-    border-right: 1px solid var(--border-color);
+    border-right: 1px solid var(--border-color); /* The left separator line */
     background-color: var(--bg-color);
     z-index: 50;
 }
@@ -22,7 +24,7 @@
 }
 
 .logo-container:hover {
-    background-color: rgba(29, 155, 240, 0.1); /* Slight blue tint on hover */
+    background-color: rgba(29, 155, 240, 0.1); 
 }
 
 .nav-links {
@@ -32,6 +34,7 @@
     margin-bottom: 1.5rem;
 }
 
+/* Premium Hover States for Nav Items */
 .nav-item {
     display: flex;
     align-items: center;
@@ -41,11 +44,12 @@
     width: fit-content;
     padding: 12px 24px 12px 12px;
     border-radius: 9999px; /* Pill shape hover */
-    transition: background-color 0.2s;
+    transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1); /* Smoother transition */
 }
 
 .nav-item:hover {
     background-color: var(--hover-overlay);
+    transform: translateX(4px); /* Slight nudge to the right on hover */
 }
 
 .nav-item.active {
@@ -53,13 +57,19 @@
 }
 
 .nav-item.active svg {
-    fill: var(--text-main); /* Fills the icon like X does when active */
+    fill: var(--text-main); 
 }
 
 .nav-icon-wrapper {
     margin-right: 20px;
     display: flex;
     align-items: center;
+    transition: transform 0.2s ease;
+}
+
+/* Make the icon slightly bounce when hovered */
+.nav-item:hover .nav-icon-wrapper {
+    transform: scale(1.1);
 }
 
 .report-btn-desktop {
@@ -68,13 +78,14 @@
     font-size: 1.1rem;
     margin-top: 10px;
     box-shadow: 0 8px 16px rgba(29, 155, 240, 0.2);
+    /* Inherits the lift effect from global.css .btn-primary */
 }
 
 .btn-icon-mobile {
-    display: none; /* Hidden on desktop */
+    display: none; 
 }
 
-/* User Pill at the Bottom */
+/* Professional User Pill at the Bottom */
 .user-pill {
     display: flex;
     align-items: center;
@@ -82,10 +93,12 @@
     border-radius: 9999px;
     cursor: pointer;
     transition: background-color 0.2s;
+    border: 1px solid transparent;
 }
 
 .user-pill:hover {
     background-color: var(--hover-overlay);
+    border-color: rgba(255, 255, 255, 0.1); /* Subtle outline on hover */
 }
 
 .avatar-small {
@@ -111,6 +124,7 @@
 .user-name {
     font-weight: 700;
     font-size: 0.95rem;
+    color: var(--text-main);
 }
 
 .user-handle {
@@ -121,19 +135,21 @@
 .logout-btn {
     background: none;
     border: none;
-    color: var(--text-main);
+    color: var(--text-muted);
     cursor: pointer;
     padding: 8px;
     border-radius: 50%;
-    transition: background-color 0.2s;
+    transition: all 0.2s ease;
 }
 
 .logout-btn:hover {
-    background-color: var(--hover-overlay);
+    color: var(--danger-color);
+    background-color: rgba(244, 33, 46, 0.1); /* Red tint on hover */
+    transform: scale(1.1);
 }
 
 .mobile-bottom-nav {
-    display: none; /* Hidden on Desktop */
+    display: none; 
 }
 
 /* =========================================
@@ -147,13 +163,16 @@
         padding: 1rem 0;
     }
     .nav-label, .user-info, .btn-text {
-        display: none; /* Hide text, show only icons */
+        display: none; 
     }
     .nav-icon-wrapper {
         margin-right: 0;
     }
     .nav-item {
         padding: 12px;
+    }
+    .nav-item:hover {
+        transform: none; /* Disable the right-nudge on smaller screens */
     }
     .report-btn-desktop {
         width: 50px;
@@ -173,13 +192,13 @@
         margin-right: 0;
     }
     .logout-btn {
-        display: none; /* Hide logout text/icon in collapsed state to save space */
+        display: none; 
     }
 }
 
 @media (max-width: 500px) {
     .sidebar {
-        display: none; /* Hide completely on mobile */
+        display: none; 
     }
     
     .mobile-bottom-nav {
@@ -199,15 +218,20 @@
     .mobile-nav-item {
         color: var(--text-muted);
         padding: 10px;
+        transition: all 0.2s ease;
     }
 
     .mobile-nav-item.active {
         color: var(--text-main);
     }
+    
+    .mobile-nav-item:active {
+        transform: scale(0.9); /* Click squeeze effect */
+    }
 
     .mobile-fab-container {
         position: relative;
-        top: -20px; /* Pulls the button up so it floats */
+        top: -20px; 
     }
 
     .mobile-fab {
@@ -219,7 +243,13 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        box-shadow: 0 4px 12px rgba(29, 155, 240, 0.4);
+        box-shadow: 0 4px 12px var(--glow-primary);
         cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .mobile-fab:active {
+        transform: scale(0.95);
+        box-shadow: 0 2px 6px var(--glow-primary);
     }
 }

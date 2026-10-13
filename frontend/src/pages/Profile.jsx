@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
-import { Calendar, MapPin, Award, X, Camera, Save, User as UserIcon, Image as ImageIcon } from 'lucide-react';
+import { Calendar, MapPin, Shield, X, Camera, Save, User as UserIcon, Image as ImageIcon, CheckCircle } from 'lucide-react';
 import NavBar from '../components/NavBar';
 import ComplaintCard from '../components/ComplaintCard';
 import '../styles/Dashboard.css';
@@ -13,14 +13,15 @@ const Profile = () => {
     const [loading, setLoading] = useState(true);
     const [selectedIssue, setSelectedIssue] = useState(null);
 
-    // --- REPORT ISSUE STATES ---
+    const isAdmin = user?.role === 'Admin';
+    const isStaff = user?.role === 'Municipality Staff';
+
     const [showForm, setShowForm] = useState(false);
     const [description, setDescription] = useState('');
     const [reportImage, setReportImage] = useState(null);
     const [reportPreview, setReportPreview] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    // --- EDIT PROFILE STATES ---
     const [showEditModal, setShowEditModal] = useState(false);
     const [editName, setEditName] = useState(user?.name || '');
     const [editBio, setEditBio] = useState(user?.bio || '');
@@ -58,7 +59,6 @@ const Profile = () => {
         setMyComplaints(prev => prev.map(item => item._id === id ? { ...item, ...updates } : item));
     };
 
-    // --- LOGIC FOR NEW REPORT ---
     const handleReportImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -86,7 +86,7 @@ const Profile = () => {
             setDescription('');
             setReportImage(null);
             setReportPreview(null);
-            fetchProfileData(); // Refresh timeline to show new report
+            fetchProfileData(); 
         } catch (error) {
             alert('Failed to post report');
         } finally {
@@ -94,7 +94,6 @@ const Profile = () => {
         }
     };
 
-    // --- LOGIC FOR EDIT PROFILE ---
     const handleFileChange = (e, type) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -133,16 +132,21 @@ const Profile = () => {
         }
     };
 
+    const getDefaultBio = () => {
+        if (isAdmin) return "System Administrator | Managing City Operations";
+        if (isStaff) return "Municipality Staff | Dedicated to resolving city issues";
+        return "Citizen of Goa | Reporting for a better city";
+    };
+
     return (
         <div className="app-layout">
-            {/* 👇 LINKED: Now NavBar can trigger the report modal here too */}
             <NavBar onOpenReportModal={() => setShowForm(true)} />
             
             <main className="feed-column">
                 <header className="feed-header">
                     <div style={{display: 'flex', flexDirection: 'column'}}>
-                        <h2 style={{margin: 0}}>{user?.name}</h2>
-                        <span style={{color: 'var(--text-muted)', fontSize: '0.8rem'}}>{myComplaints.length} Reports</span>
+                        <h2 style={{margin: 0}}>{user?.name} {isAdmin && <Shield size={18} color="var(--primary-accent)" style={{marginLeft: '5px'}}/>}</h2>
+                        <span style={{color: 'var(--text-muted)', fontSize: '0.8rem'}}>{isAdmin ? 'Admin Clearance' : `${myComplaints.length} Reports`}</span>
                     </div>
                 </header>
 
@@ -157,9 +161,9 @@ const Profile = () => {
                                 backgroundPosition: 'center'
                             }}></div>
                             <div className="avatar-wrapper">
-                                <div className="profile-avatar-img">
+                                <div className="profile-avatar-img" style={{ border: isAdmin ? '4px solid var(--primary-accent)' : '4px solid var(--bg-color)' }}>
                                     {user?.profileImage ? (
-                                        <img src={user.profileImage} alt="Avatar" style={{width:'100%', height:'100%', borderRadius:'50%', objectFit: 'cover'}}/>
+                                        <img src={user.profileImage} alt="Avatar" />
                                     ) : (
                                         user?.name?.charAt(0) || <UserIcon size={48}/>
                                     )}
@@ -169,21 +173,29 @@ const Profile = () => {
                         </div>
 
                         <div className="profile-info-block">
-                            <h2 style={{ fontSize: '1.4rem', fontWeight: '900', margin: 0 }}>{user?.name}</h2>
+                            <h2 style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                {user?.name} 
+                                {isAdmin && <Shield size={20} color="var(--primary-accent)" title="Admin"/>}
+                            </h2>
                             <p style={{ color: 'var(--text-muted)', margin: '0 0 12px' }}>@{user?.name?.toLowerCase().replace(/\s/g, '')}</p>
-                            <p className="profile-bio">{user?.bio || "Citizen of Goa | Reporting for a better city"}</p>
+                            
+                            <p className="profile-bio">{user?.bio || getDefaultBio()}</p>
+                            
                             <div className="profile-meta-row">
                                 <span style={{display:'flex', alignItems:'center', gap:'4px'}}><MapPin size={16} /> Goa, India</span>
                                 <span style={{display:'flex', alignItems:'center', gap:'4px'}}><Calendar size={16} /> Joined March 2026</span>
                             </div>
-                            <div className="profile-stats-row">
-                                <div className="stat-item"><strong>{myComplaints.length}</strong><span>Reports</span></div>
-                                <div className="stat-item"><strong>{stats?.resolvedCount || 0}</strong><span>Resolved</span></div>
-                                <div className="stat-item"><strong>{stats?.impactScore || 0}</strong><span>Impact</span></div>
-                            </div>
+
+                            {!isAdmin && (
+                                <div className="profile-stats-row">
+                                    <div className="stat-item"><strong>{myComplaints.length}</strong><span>Reports</span></div>
+                                    <div className="stat-item"><strong>{stats?.resolvedCount || 0}</strong><span>Resolved</span></div>
+                                    <div className="stat-item"><strong>{stats?.impactScore || 0}</strong><span>Impact</span></div>
+                                </div>
+                            )}
                         </div>
 
-                        <div className="profile-timeline-header">My Reports</div>
+                        <div className="profile-timeline-header">{isAdmin ? 'Personal Reports' : 'My Reports'}</div>
                         <div className="my-reports-list">
                             {myComplaints.length > 0 ? (
                                 myComplaints.map(item => (
@@ -193,8 +205,8 @@ const Profile = () => {
                                 ))
                             ) : (
                                 <div className="empty-state">
-                                    <Award size={48} strokeWidth={1} style={{marginBottom: '12px', opacity: 0.5}}/>
-                                    <p>You haven't reported any issues yet.</p>
+                                    <Shield size={48} strokeWidth={1} style={{marginBottom: '12px', opacity: 0.5}}/>
+                                    <p>{isAdmin ? "Admins usually manage reports rather than create them." : "You haven't reported any issues yet."}</p>
                                 </div>
                             )}
                         </div>
@@ -212,23 +224,39 @@ const Profile = () => {
                         <ComplaintCard complaint={selectedIssue} onUpdate={handleUpdateItem} />
                     </div>
                 ) : (
-                    <div className="desktop-map-card" style={{height: '300px'}}>
-                        <h3>City Badges</h3>
-                        <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '10px'}}>
-                            {stats?.badges?.length > 0 ? stats.badges.map((b, i) => (
-                                <div key={i} style={{padding: '12px', background: 'var(--bg-color)', borderRadius: '12px', textAlign: 'center', border: '1px solid var(--border-color)'}}>
-                                    <span style={{fontSize: '2rem'}}>{b.icon}</span>
-                                    <p style={{fontSize: '0.7rem', fontWeight: '700', marginTop: '5px'}}>{b.title}</p>
+                    <div className="desktop-map-card" style={{height: 'auto', paddingBottom: '20px'}}>
+                        {isAdmin ? (
+                            <>
+                                <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <Shield size={20} color="var(--primary-accent)"/> Security Clearance
+                                </h3>
+                                <div style={{marginTop: '15px', display: 'flex', flexDirection: 'column', gap: '12px', color: 'var(--text-primary)', fontSize: '0.9rem'}}>
+                                    <div style={{display: 'flex', gap: '10px', alignItems: 'center'}}><CheckCircle size={16} color="#00ba7c"/> <span>Full System Access</span></div>
+                                    <div style={{display: 'flex', gap: '10px', alignItems: 'center'}}><CheckCircle size={16} color="#00ba7c"/> <span>Municipality Management</span></div>
+                                    <div style={{display: 'flex', gap: '10px', alignItems: 'center'}}><CheckCircle size={16} color="#00ba7c"/> <span>Spam Moderation Control</span></div>
+                                    <div style={{display: 'flex', gap: '10px', alignItems: 'center'}}><CheckCircle size={16} color="#00ba7c"/> <span>Issue Delegation Rights</span></div>
                                 </div>
-                            )) : (
-                                <p style={{color:'var(--text-muted)', fontSize:'0.8rem', gridColumn:'1/-1', textAlign:'center'}}>Earn badges by reporting!</p>
-                            )}
-                        </div>
+                            </>
+                        ) : (
+                            <>
+                                <h3>City Badges</h3>
+                                <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '10px'}}>
+                                    {stats?.badges?.length > 0 ? stats.badges.map((b, i) => (
+                                        <div key={i} style={{padding: '12px', background: 'var(--bg-color)', borderRadius: '12px', textAlign: 'center', border: '1px solid var(--border-color)'}}>
+                                            <span style={{fontSize: '2rem'}}>{b.icon}</span>
+                                            <p style={{fontSize: '0.7rem', fontWeight: '700', marginTop: '5px'}}>{b.title}</p>
+                                        </div>
+                                    )) : (
+                                        <p style={{color:'var(--text-muted)', fontSize:'0.8rem', gridColumn:'1/-1', textAlign:'center'}}>Earn badges by reporting!</p>
+                                    )}
+                                </div>
+                            </>
+                        )}
                     </div>
                 )}
             </aside>
 
-            {/* --- REPORT ISSUE MODAL --- */}
+            {/* --- Modals for Report/Edit --- */}
             {showForm && (
                 <div className="modal-overlay">
                     <div className="compose-modal" style={{maxWidth: '600px', width: '100%'}}>
@@ -240,13 +268,7 @@ const Profile = () => {
                             <div className="compose-body">
                                 <div className="compose-avatar">{user?.name?.charAt(0)}</div>
                                 <div className="compose-input-area">
-                                    <textarea 
-                                        rows="4" 
-                                        value={description} 
-                                        onChange={(e) => setDescription(e.target.value)} 
-                                        placeholder="What's broken? Add details..." 
-                                        required 
-                                    />
+                                    <textarea rows="4" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="What's broken? Add details..." required />
                                     {reportPreview && (
                                         <div className="image-preview-container">
                                             <img src={reportPreview} alt="Preview" className="image-preview" />
@@ -260,25 +282,20 @@ const Profile = () => {
                                     <ImageIcon size={20} color="var(--primary-accent)" />
                                     <input type="file" accept="image/*" onChange={handleReportImageChange} style={{ display: 'none' }} />
                                 </label>
-                                <button type="submit" className="btn-primary" disabled={isSubmitting}>
-                                    {isSubmitting ? 'Posting...' : 'Report Issue'}
-                                </button>
+                                <button type="submit" className="btn-primary" disabled={isSubmitting}>{isSubmitting ? 'Posting...' : 'Report Issue'}</button>
                             </div>
                         </form>
                     </div>
                 </div>
             )}
 
-            {/* --- EDIT PROFILE MODAL --- */}
             {showEditModal && (
                 <div className="modal-overlay">
                     <div className="compose-modal" style={{maxHeight: '85vh', width: '100%', maxWidth: '600px'}}>
                         <div className="modal-header">
                             <button onClick={() => setShowEditModal(false)} className="close-btn"><X size={24} /></button>
                             <span className="modal-title">Edit Profile</span>
-                            <button onClick={handleSaveProfile} className="btn-primary" style={{marginLeft: 'auto', padding: '6px 20px'}} disabled={isSaving}>
-                                {isSaving ? 'Saving...' : 'Save'}
-                            </button>
+                            <button onClick={handleSaveProfile} className="btn-primary" style={{marginLeft: 'auto', padding: '6px 20px'}} disabled={isSaving}>{isSaving ? 'Saving...' : 'Save'}</button>
                         </div>
                         <div className="compose-body" style={{flexDirection: 'column', padding: 0, overflowY: 'auto'}}>
                             <div className="profile-banner" style={{ backgroundImage: `url(${bannerPreview})`, height: '180px', position: 'relative', backgroundSize: 'cover', backgroundPosition: 'center' }}>

@@ -2,8 +2,6 @@ import React, { useContext } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, AuthContext } from './context/AuthContext';
 
-// We removed the global NavBar import from here because the individual 
-// pages (UserDashboard, Profile) now render it inside their own CSS Grids!
 import Login from './pages/Login';
 import Register from './pages/Register';
 import UserDashboard from './pages/UserDashboard';
@@ -23,6 +21,15 @@ const HomeRedirect = () => {
   return <Navigate to="/user" replace />;
 };
 
+// 👇 FIX: Smart Map Router 👇
+// This ensures that when ANYONE clicks "City Map", they get the correct dashboard
+const MapRedirect = () => {
+  const { user } = useContext(AuthContext);
+  if (user?.role === 'Admin') return <AdminDashboard />;
+  if (user?.role === 'Municipality Staff') return <StaffDashboard />;
+  return <UserDashboard />;
+};
+
 const PublicRoute = ({ children }) => {
   const { user, loading } = useContext(AuthContext);
   if (loading) return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: 'var(--text-muted)' }}>Loading...</div>;
@@ -30,23 +37,33 @@ const PublicRoute = ({ children }) => {
   return children;
 };
 
+const ProtectedRoute = ({ children, allowedRoles }) => {
+  const { user, loading } = useContext(AuthContext);
+  if (loading) return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: 'var(--text-muted)' }}>Loading...</div>;
+  if (!user) return <Navigate to="/login" replace />;
+  
+  if (allowedRoles && !allowedRoles.includes(user.role)) {
+    return <Navigate to="/" replace />;
+  }
+  return children;
+};
+
 function App() {
   return (
     <AuthProvider>
       <Router>
-        {/* We removed the global NavBar and the wrapping container div. 
-            Now, the pages take up the full screen using our CSS Grid! */}
         <Routes>
           <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
           <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
           
-          <Route path="/user" element={<UserDashboard />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/staff" element={<StaffDashboard />} />
+          <Route path="/user" element={<ProtectedRoute allowedRoles={['User']}><UserDashboard /></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute allowedRoles={['User', 'Admin', 'Municipality Staff']}><Profile /></ProtectedRoute>} />
           
-          {/* Added the missing map route so mobile bottom-nav doesn't throw a warning */}
-          <Route path="/map" element={<UserDashboard />} /> 
+          {/* 👇 FIX: The Map route is now allowed for everyone, and uses the Smart Router 👇 */}
+          <Route path="/map" element={<ProtectedRoute allowedRoles={['User', 'Admin', 'Municipality Staff']}><MapRedirect /></ProtectedRoute>} /> 
+          
+          <Route path="/admin" element={<ProtectedRoute allowedRoles={['Admin']}><AdminDashboard /></ProtectedRoute>} />
+          <Route path="/staff" element={<ProtectedRoute allowedRoles={['Municipality Staff']}><StaffDashboard /></ProtectedRoute>} />
           
           <Route path="/" element={<HomeRedirect />} />
         </Routes>

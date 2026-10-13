@@ -14,12 +14,16 @@ router.post('/', protect, authorize('Admin', 'Municipality Staff'), upload.singl
 
         if (!req.file) return res.status(400).json({ message: 'Fix proof image is required' });
 
+        const fixImageURL = req.file.path.includes('http')
+            ? req.file.path
+            : `http://localhost:5000/${req.file.path.replace(/\\/g, '/')}`;
+
         const fixReport = await FixReport.create({
             departmentId: req.user.departmentId,
             municipalityId: req.user.municipalityId,
             relatedComplaintId,
             description,
-            fixImageURL: req.file.path,
+            fixImageURL,
             location: { lat: parseFloat(lat), lng: parseFloat(lng) }
         });
 

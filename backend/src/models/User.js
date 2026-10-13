@@ -19,23 +19,18 @@ const userSchema = new mongoose.Schema({
         enum: ['User', 'Admin', 'Municipality Staff'],
         default: 'User'
     },
-    
-    // 👇 NEW PROFESSIONAL PROFILE FIELDS 👇
     profileImage: {
         type: String,
-        default: '' // Will store the Cloudinary or local URL
+        default: '' 
     },
     bannerImage: {
         type: String,
-        default: '' // Will store the Cloudinary or local URL
+        default: '' 
     },
     bio: {
         type: String,
         default: 'Citizen of Goa | Reporting for a better city'
     },
-    // 👆 NEW FIELDS END 👆
-
-    // Optional fields for Staff
     cityId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'City'
@@ -43,7 +38,15 @@ const userSchema = new mongoose.Schema({
     departmentId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Department'
-    }
+    },
+    municipalityId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Municipality',
+    required: function() { 
+        return this.role === 'Municipality Staff'; // Only required if staff, not for citizens!
+    },
+    set: v => v === "" ? undefined : v // Automatically turn empty strings into undefined
+}
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);
